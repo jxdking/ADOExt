@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Authors>Kevin Jin</Authors>
+    <Company />
+    <Version>1.1.2-beta</Version>
+    <Description>A simple object mapping library. A simple extenstion for IDbConnection and IDbTransaction.</Description>
+    <PackageTags>ORM Database ADO.NET Extension</PackageTags>
+    <AssemblyName>MagicEastern.ADOExt</AssemblyName>
+    <RootNamespace>MagicEastern.ADOExt</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+  </ItemGroup>
+
+</Project>
