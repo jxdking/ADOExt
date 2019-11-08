@@ -6,16 +6,15 @@
     <title>MagicEastern.ADOExt.Oracle</title>
     <authors>Kevin Jin</authors>
     <owners>Kevin Jin</owners>
-    <licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
-    <projectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</projectUrl>
-    <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>
+    <licenseUrl>https://github.com/jxdking/ADOExt/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/jxdking/ADOExt</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A simple object mapping library.</description>
     <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>ORM ADO.NET Mapping Database</tags>
 	<dependencies>
-		<dependency id="MagicEastern.ADOExt" version="1.0.3-alpha" />
+		<dependency id="MagicEastern.ADOExt" version="1.1.2-beta" />
 	</dependencies>
   </metadata>
 </package>

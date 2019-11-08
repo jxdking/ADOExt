@@ -9,6 +9,8 @@
     <PackageTags>ORM Database ADO.NET Extension</PackageTags>
     <AssemblyName>MagicEastern.ADOExt.SqlServer</AssemblyName>
     <RootNamespace>MagicEastern.ADOExt.SqlServer</RootNamespace>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/jxdking/ADOExt</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +19,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ADOExt\ADOExt.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
