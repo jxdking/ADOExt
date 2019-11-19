@@ -1,7 +1,7 @@
 # ADOExt
 
 ## Description
-A simple object mapping library. It gives you a couple useful extension methods for IDbConnection and IDbTransaction. It uses ADO.NET at backend. The performance is on par with Entity Framework Core.
+A simple object mapping library. It gives you a couple useful extension methods for IDbConnection and IDbTransaction. It uses ADO.NET at backend. The performance is on par with (if it is not faster) Entity Framework Core.
 
 
 ## Nuget
