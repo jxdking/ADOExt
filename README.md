@@ -35,3 +35,4 @@ Insert<T>
 Update<T>
 Delete<T>
  ```
+ Check the signature of those methods from the source code to see detail how to call those function.
