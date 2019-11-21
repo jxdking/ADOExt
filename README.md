@@ -23,6 +23,12 @@ public class DeptInfo
 ```
 
 ### Step 2
+Register your connection string. 
+```c#
+ResolverProviderBase.Register(new ResolverProvider(connectionString));
+```
+
+### Step 3
 Use the extension methods from IDbConnection and IDbTransaction to access the database.
 #### Extension Methods:
 ```
