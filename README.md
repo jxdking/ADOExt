@@ -23,7 +23,7 @@ public class DeptInfo
 ```
 
 ### Step 2
-Register your connection string. 
+Register your connection string. This step is required. All the information of object mapping will be saved in ResolverProvider object based on its connection string value. One connection string can only have one ResolverProvider, can only be registered once. When you call extension methods on IDbConnection or IDbTransaction, a ResolverProvider with the same connection string will be used to facility the action.
 ```c#
 ResolverProviderBase.Register(new ResolverProvider(connectionString));
 ```
