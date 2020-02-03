@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>MagicEastern.ADOExt.Oracle</id>
-    <version>1.1.2-beta</version>
+    <version>1.2.0</version>
     <title>MagicEastern.ADOExt.Oracle</title>
     <authors>Kevin Jin</authors>
     <owners>Kevin Jin</owners>
@@ -11,10 +11,10 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A simple object mapping library.</description>
     <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
-    <copyright>Copyright 2019</copyright>
+    <copyright>Copyright 2020</copyright>
     <tags>ORM ADO.NET Mapping Database</tags>
 	<dependencies>
-		<dependency id="MagicEastern.ADOExt" version="1.1.2-beta" />
+		<dependency id="MagicEastern.ADOExt" version="1.2.0" />
 	</dependencies>
   </metadata>
 </package>

@@ -9,13 +9,21 @@ namespace MagicEastern.ADOExt
         public string CommandText;
         public List<IDBColumnMapping<T>> ColumnInfoList;
 
+        private string RowCountParaName = "sql_nor";
+
         public int Execute(ref T obj, IDbConnection conn, IDbTransaction trans = null)
         {
             var sql = CreateSql(obj);
             int ret = conn.Execute(sql, false, trans);
-            for (int i = 0; i < ColumnInfoList.Count; i++)
+            if (ret < 0) {
+                ret = (int)sql.Parameters.Single(i => i.Name == RowCountParaName).Output;
+            }
+            if (ret == 1)
             {
-                ColumnInfoList[i].PropertySetter(obj, sql.Parameters[i].Output);
+                for (int i = 0; i < ColumnInfoList.Count; i++)
+                {
+                    ColumnInfoList[i].PropertySetter(obj, sql.Parameters[i].Output);
+                }
             }
             return ret;
         }
@@ -29,7 +37,9 @@ namespace MagicEastern.ADOExt
 
         private Sql CreateSql(T obj)
         {
-            return new Sql(CommandText, ColumnInfoList.Select(i => CreateParameter(i, obj)));
+            var ps = ColumnInfoList.Select(i => CreateParameter(i, obj)).ToList();
+            ps.Add(new Parameter(RowCountParaName, -1, ParameterDirection.InputOutput));
+            return new Sql(CommandText, ps);
         }
 
         private static Parameter CreateParameter(IDBColumnMapping<T> colInfo, T obj)

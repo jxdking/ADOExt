@@ -68,6 +68,7 @@ namespace MagicEastern.ADOExt.Oracle
         {
             string sql = "begin\r\n";
             sql += "insert into " + GetTableName(table, schema) + "(" + string.Join(",", insertColumns) + ") values (:" + string.Join(",:", insertColumns) + ") returning " + string.Join(",", returningColumns) + " into :" + string.Join(",:", returningColumns) + ";\r\n";
+            sql += ":sql_nor := sql%ROWCOUNT;\r\n";
             sql += "end;";
             return sql;
         }
@@ -88,6 +89,7 @@ namespace MagicEastern.ADOExt.Oracle
         {
             string sql = "begin\r\n";
             sql += "update " + GetTableName(table, schema) + " set " + string.Join(",", setColumns.Select(i => i + "=:" + i)) + " where " + string.Join(" and ", pkColumns.Select(i => i + "=:" + i)) + " returning " + string.Join(",", returningColumns) + " into :" + string.Join(",:", returningColumns) + ";\r\n";
+            sql += ":sql_nor := sql%ROWCOUNT;\r\n";
             sql += "end;";
             return sql;
         }
