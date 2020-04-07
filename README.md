@@ -29,6 +29,13 @@ var rp = ResolverProvider(() => new SqlConnection(SqlConnString))
 ```
 
 ### Step 3
+Create a DBConnectionWrapper object when you want to access database.
+```c#
+using (var conn = rp.OpenConnection())
+{
+	// use conn to access database.
+}
+```
 DBConnectionWrapper class extends IDbConnection interface. Thus, you can use this object as usual SqlConneciton or OracleConnection object. There are also some useful extension methods on DBConnectionWrapper.
 #### Extension Methods:
 ```
