@@ -31,7 +31,7 @@ var rp = ResolverProvider(() => new SqlConnection(SqlConnString))
 ### Step 3
 Create a DBConnectionWrapper object when you want to access database.
 ```c#
-using (var conn = rp.OpenConnection())
+using (DBConnectionWrapper conn = rp.OpenConnection())
 {
 	// use conn to access database.
 }
