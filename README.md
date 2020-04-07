@@ -1,7 +1,7 @@
 # ADOExt
 
 ## Description
-A simple object mapping library. It gives you a couple useful extension methods for IDbConnection and IDbTransaction. It uses ADO.NET at backend. The performance is on par with (if it is not faster) Entity Framework Core.
+A simple object mapping library. It uses ADO.NET at backend. The performance is on par with (if it is not faster) Entity Framework Core.
 
 
 ## Nuget
@@ -23,13 +23,13 @@ public class DeptInfo
 ```
 
 ### Step 2
-Register your connection string. This step is required. All the information of object mapping will be saved in ResolverProvider object based on its connection string value. One connection string can only have one ResolverProvider, can only be registered once. When you call extension methods on IDbConnection or IDbTransaction, a ResolverProvider with the same connection string will be used to facility the action.
+Create a ResolverProvider object. It will be used to create DBConnectionWrapper object. You can cache it static somewhere for later use throughout the application. 
 ```c#
-ResolverProviderBase.Register(new ResolverProvider(connectionString));
+var rp = ResolverProvider(() => new SqlConnection(SqlConnString))
 ```
 
 ### Step 3
-Use the extension methods from IDbConnection and IDbTransaction to access the database.
+DBConnectionWrapper class extends IDbConnection interface. Thus, you can use this object as usual SqlConneciton or OracleConnection object. There are also some useful extension methods on DBConnectionWrapper.
 #### Extension Methods:
 ```
 Query<T>
@@ -41,4 +41,4 @@ Insert<T>
 Update<T>
 Delete<T>
  ```
- Check the signature of those methods from the source code to see detail how to call those function.
+ See example in projects "Test"(SqlServer), "TestOracle"(Oracle).
