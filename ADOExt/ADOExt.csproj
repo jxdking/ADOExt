@@ -5,7 +5,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Kevin Jin</Authors>
     <Company />
-    <Version>1.2.0</Version>
+    <Version>2.0.3</Version>
     <Description>A simple object mapping library. A simple extenstion for IDbConnection and IDbTransaction.</Description>
     <PackageTags>ORM Database ADO.NET Extension</PackageTags>
     <AssemblyName>MagicEastern.ADOExt</AssemblyName>
@@ -13,7 +13,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <Compile Remove="Support\DataBaseType.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
 </Project>

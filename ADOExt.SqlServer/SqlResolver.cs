@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace MagicEastern.ADOExt.SqlServer
 {
-    internal class SqlResolver : ISqlResolver
+    public class SqlResolver : ISqlResolver
     {
-        public string DataBaseType => ADOExt.DataBaseType.SqlServer;
-
         public Sql ColumnMetaDataFromTable(string table, string schema = null)
         {
             if (string.IsNullOrEmpty(table))
@@ -64,31 +63,31 @@ namespace MagicEastern.ADOExt.SqlServer
             return tablename;
         }
 
-        public string DeleteTemplate(string table, IEnumerable<string> pkColumns, string schema = null)
+        public string InsertTemplate<T>(DBTableAdapterContext<T> context)
         {
-            var tablename = GetTableName(table, schema);
-            string sql = "delete from " + tablename + " where " + string.Join(" and ", pkColumns.Select(i => "[" + i + "]=@" + i));
+            var tablename = GetTableName(context.Mapping.TableName, context.Mapping.Schema);
+            string sql = "insert into " + tablename + "([" + string.Join("],[", context.InsertColumns) + "]) values (@" + string.Join(",@", context.InsertColumns) + ")";
             return sql;
         }
 
-        public string InsertTemplate(string table, IEnumerable<string> insertColumns, IEnumerable<string> returningColumns, string schema = null)
+        public string DeleteTemplate<T>(DBTableAdapterContext<T> context)
         {
-            var tablename = GetTableName(table, schema);
-            string sql = "insert into " + tablename + "([" + string.Join("],[", insertColumns) + "]) values (@" + string.Join(",@", insertColumns) + ")";
+            var tablename = GetTableName(context.Mapping.TableName, context.Mapping.Schema);
+            string sql = "delete from " + tablename + " where " + string.Join(" and ", context.PkColumns.Select(i => "[" + i + "]=@" + i));
             return sql;
         }
 
-        public string LoadTemplate(string table, IEnumerable<string> pkColumns, IEnumerable<string> selectColumns, string schema = null)
+        public string UpdateTemplate<T>(DBTableAdapterContext<T> context)
         {
-            var tablename = GetTableName(table, schema);
-            string sql = "select [" + string.Join("],[", selectColumns) + "] from " + tablename + " where " + string.Join(" and ", pkColumns.Select(i => "[" + i + "]=@" + i));
+            var tablename = GetTableName(context.Mapping.TableName, context.Mapping.Schema);
+            string sql = "update " + tablename + " set " + string.Join(",", context.SetColumns.Select(i => "[" + i + "]=@" + i)) + " where " + string.Join(" and ", context.PkColumns.Select(i => "[" + i + "]=@" + i));
             return sql;
         }
 
-        public string UpdateTemplate(string table, IEnumerable<string> pkColumns, IEnumerable<string> setColumns, IEnumerable<string> returningColumns, string schema = null)
+        public string LoadTemplate<T>(DBTableAdapterContext<T> context)
         {
-            var tablename = GetTableName(table, schema);
-            string sql = "update " + tablename + " set " + string.Join(",", setColumns.Select(i => "[" + i + "]=@" + i)) + " where " + string.Join(" and ", pkColumns.Select(i => "[" + i + "]=@" + i));
+            var tablename = GetTableName(context.Mapping.TableName, context.Mapping.Schema);
+            string sql = "select [" + string.Join("],[", context.AllColumns) + "] from " + tablename + " where " + string.Join(" and ", context.PkColumns.Select(i => "[" + i + "]=@" + i));
             return sql;
         }
     }

@@ -1,6 +1,6 @@
 ﻿namespace MagicEastern.ADOExt
 {
-    internal static class Constant
+    public static class Constant
     {
         public const int MaxResolverProvidorIdx = 16;
     }

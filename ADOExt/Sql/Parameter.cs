@@ -16,5 +16,10 @@ namespace MagicEastern.ADOExt
             Value = value;
             Direction = direction;
         }
+
+        public override string ToString()
+        {
+            return "{" + Name + ":" + Value + "}";
+        }
     }
 }

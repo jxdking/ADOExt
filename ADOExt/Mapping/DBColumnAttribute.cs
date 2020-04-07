@@ -4,6 +4,7 @@
     {
         public string ColumnName { get; set; }
         public bool NoInsert { get; set; }
+        public bool NoUpdate { get; set; }
         public bool Required { get; set; }
     }
 }

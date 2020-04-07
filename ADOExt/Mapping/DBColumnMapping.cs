@@ -10,7 +10,7 @@ namespace MagicEastern.ADOExt
     {
         public string ColumnName { get; protected set; }
         public bool NoInsert { get; protected set; }
-
+        public bool NoUpdate { get; protected set; }
         /// <summary>
         /// for value type column, the Required will always be true.
         /// </summary>
@@ -44,13 +44,19 @@ namespace MagicEastern.ADOExt
         {
         }
 
-        public DBColumnMapping(PropertyInfo objectProperty, string columnName, bool required = false, bool noInsert = false)
+        public override string ToString()
+        {
+            return ColumnName;
+        }
+
+        public DBColumnMapping(PropertyInfo objectProperty, string columnName, bool required = false, bool noInsert = false, bool noUpdate = false)
         {
             var t = objectProperty.PropertyType;
             Required = required || t.IsValueType && Activator.CreateInstance(t) != null;
             ObjectProperty = objectProperty;
             ColumnName = columnName;
             NoInsert = noInsert;
+            NoUpdate = noUpdate;
             PropertySetter = CreateSetter(objectProperty, !Required);
             PropertyGetter = CreateGetter(ObjectProperty);
         }

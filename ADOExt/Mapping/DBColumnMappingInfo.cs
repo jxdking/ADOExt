@@ -13,6 +13,7 @@
         {
             ColumnName = mapping.ColumnName;
             NoInsert = mapping.NoInsert;
+            NoUpdate = mapping.NoUpdate;
             Required = mapping.Required;
             ObjectProperty = mapping.ObjectProperty;
             PropertyGetter = mapping.PropertyGetter;

@@ -8,19 +8,20 @@ namespace MagicEastern.ADOExt.Oracle
 {
     internal class DBClassResolver : IDBClassResolver
     {
-        private string connStr;
+        private Func<IDbConnection> _CreateConnection;
 
-        public string DataBaseType => ADOExt.DataBaseType.Oracle;
-
-        public DBClassResolver(string connectionString)
+        public DBClassResolver(Func<IDbConnection> createConnection)
         {
-            connStr = connectionString;
+            _CreateConnection = createConnection;
         }
 
-        public IDbCommand CreateCommand(Sql sql, IDbConnection conn, IDbTransaction trans = null)
+        public IDbCommand CreateCommand(Sql sql, DBConnectionWrapper conn, DBTransactionWrapper trans = null)
         {
-            OracleCommand command = new OracleCommand(sql.Text, (OracleConnection)conn);
-            command.Transaction = (OracleTransaction)trans;
+            OracleCommand command = new OracleCommand(sql.Text, (OracleConnection)conn.Connection);
+            if (trans != null)
+            {
+                command.Transaction = (OracleTransaction)trans.Transaction;
+            }
             if (sql.Parameters.Count > 0)
             {
                 command.BindByName = true;
@@ -37,7 +38,10 @@ namespace MagicEastern.ADOExt.Oracle
         {
             var p = new OracleParameter(parameter.Name, parameter.Value ?? DBNull.Value);
             p.Direction = parameter.Direction;
-            p.Size = int.MaxValue; // remove the size limitation of the parameter.
+            if (p.Direction != ParameterDirection.Input)
+            {
+                p.Size = short.MaxValue; // remove the size limitation of the parameter.
+            }
             return p;
         }
 
@@ -48,7 +52,7 @@ namespace MagicEastern.ADOExt.Oracle
 
         public IDbConnection CreateConnection()
         {
-            return new OracleConnection(connStr);
+            return _CreateConnection();
         }
 
         public IDbDataAdapter CreateDataAdapter(IDbCommand command)

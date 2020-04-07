@@ -8,6 +8,7 @@ namespace MagicEastern.ADOExt
     {
         string ColumnName { get; }
         bool NoInsert { get; }
+        bool NoUpdate { get; }
         PropertyInfo ObjectProperty { get; }
         bool Required { get; }
         Func<T, object> PropertyGetter { get; }

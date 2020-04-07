@@ -8,19 +8,20 @@ namespace MagicEastern.ADOExt.SqlServer
 {
     internal class DBClassResolver : IDBClassResolver
     {
-        private string connString;
+        private Func<IDbConnection> _CreateConnection;
 
-        public string DataBaseType => ADOExt.DataBaseType.SqlServer;
-
-        public DBClassResolver(string connectionString)
+        
+        public DBClassResolver(Func<IDbConnection> createConnection)
         {
-            connString = connectionString;
+            _CreateConnection = createConnection;
         }
 
-        public IDbCommand CreateCommand(Sql sql, IDbConnection conn, IDbTransaction trans = null)
+        public IDbCommand CreateCommand(Sql sql, DBConnectionWrapper conn, DBTransactionWrapper trans = null)
         {
-            SqlCommand command = new SqlCommand(sql.Text, (SqlConnection)conn);
-            command.Transaction = (SqlTransaction)trans;
+            SqlCommand command = new SqlCommand(sql.Text, (SqlConnection)conn.Connection);
+            if (trans != null) {
+                command.Transaction = (SqlTransaction)trans.Transaction;
+            }
             if (sql.Parameters.Count > 0)
             {
                 command.Parameters.AddRange(sql.Parameters.Select(i => ToSqlParameter(i)).ToArray());
@@ -40,13 +41,16 @@ namespace MagicEastern.ADOExt.SqlServer
         private object ToSqlParameter(Parameter parameter)
         {
             var p = new SqlParameter(parameter.Name, parameter.Value ?? DBNull.Value);
+            if (p.Direction != ParameterDirection.Input) {
+                p.Size = short.MaxValue;
+            }
             p.Direction = parameter.Direction;
             return p;
         }
 
         public IDbConnection CreateConnection()
         {
-            return new SqlConnection(connString);
+            return _CreateConnection();
         }
 
         public IDbDataAdapter CreateDataAdapter(IDbCommand command)

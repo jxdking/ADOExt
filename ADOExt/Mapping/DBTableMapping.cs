@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace MagicEastern.ADOExt
@@ -27,30 +28,24 @@ namespace MagicEastern.ADOExt
 
         private static DBTableMapping<T>[] _Cache = new DBTableMapping<T>[Constant.MaxResolverProvidorIdx];
 
-        public static DBTableMapping<T> Get(IResolverProvider resolverProvider)
+        public static DBTableMapping<T> Get(IResolverProvider resolverProvider, DBConnectionWrapper currentConnection, DBTransactionWrapper currentTrans)
         {
             var ret = _Cache[resolverProvider.Idx];
             if (ret == null)
             {
-                return _Cache[resolverProvider.Idx] = new DBTableMapping<T>(resolverProvider);
+                return _Cache[resolverProvider.Idx] = new DBTableMapping<T>(resolverProvider, currentConnection, currentTrans);
             }
             return ret;
         }
 
-        private DBTableMapping(IResolverProvider resolverProvider)
+        private DBTableMapping(IResolverProvider resolverProvider, DBConnectionWrapper currentConnection, DBTransactionWrapper currentTrans)
         {
             var mapping = DBObjectMapping<T>.Get();
 
             Sql sql = resolverProvider.SqlResolver.ColumnMetaDataFromTable(TableName, Schema);
-
-            using (var conn = resolverProvider.DBClassResolver.CreateConnection())
-            {
-                conn.Open();
-                List<SchemaMetadata> metadatas = conn.Query<SchemaMetadata>(sql);
-
-                ColumnMappingList = mapping.ColumnMappingList
-                    .Select(i => new DBColumnMappingInfo<T>(i, metadatas.Single(j => string.Compare(j.COLUMN_NAME, i.ColumnName, true) == 0)));
-            }
+            List<SchemaMetadata> metadatas = currentConnection.Query<SchemaMetadata>(sql, currentTrans);
+            ColumnMappingList = mapping.ColumnMappingList
+                .Select(i => new DBColumnMappingInfo<T>(i, metadatas.Single(j => string.Compare(j.COLUMN_NAME, i.ColumnName, true) == 0)));
         }
     }
 }

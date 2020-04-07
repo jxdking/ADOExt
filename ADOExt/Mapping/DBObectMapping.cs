@@ -60,7 +60,8 @@ namespace MagicEastern.ADOExt
                         p,
                         string.IsNullOrEmpty(dbColAtt.ColumnName) ? p.Name : dbColAtt.ColumnName,
                         dbColAtt.Required,
-                        dbColAtt.NoInsert
+                        dbColAtt.NoInsert,
+                        dbColAtt.NoUpdate
                     )
                 );
             }
