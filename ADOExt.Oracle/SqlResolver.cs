@@ -51,12 +51,17 @@ namespace MagicEastern.ADOExt.Oracle
             return new Sql(sqltxt, new Parameter("tablename", table.ToUpper()), new Parameter("tableschema", schema?.ToUpper()));
         }
 
-
+        private IEnumerable<string> GetReturningCols<T>(DBTableAdapterContext<T> context)
+        {
+            var returningCols = context.Mapping.ColumnMappingList.Where(i => i.DataType != "LONG").Select(i => i.ColumnName);
+            return returningCols;
+        }
 
         public string InsertTemplate<T>(DBTableAdapterContext<T> context)
         {
+            var returningCols = GetReturningCols(context);
             string sql = "begin\r\n";
-            sql += "insert into " + GetTableName(context.Mapping.TableName, context.Mapping.Schema) + "(" + string.Join(",", context.InsertColumns) + ") values (:" + string.Join(",:", context.InsertColumns) + ") returning " + string.Join(",", context.AllColumns) + " into :" + string.Join(",:", context.AllColumns) + ";\r\n";
+            sql += "insert into " + GetTableName(context.Mapping.TableName, context.Mapping.Schema) + "(" + string.Join(",", context.InsertColumns) + ") values (:" + string.Join(",:", context.InsertColumns) + ") returning " + string.Join(",", returningCols) + " into :" + string.Join(",:", returningCols) + ";\r\n";
             sql += ":sql_nor := sql%ROWCOUNT;\r\n";
             sql += "end;";
             return sql;
@@ -70,8 +75,9 @@ namespace MagicEastern.ADOExt.Oracle
 
         public string UpdateTemplate<T>(DBTableAdapterContext<T> context)
         {
+            var returningCols = GetReturningCols(context);
             string sql = "begin\r\n";
-            sql += "update " + GetTableName(context.Mapping.TableName, context.Mapping.Schema) + " set " + string.Join(",", context.SetColumns.Select(i => i + "=:" + i)) + " where " + string.Join(" and ", context.PkColumns.Select(i => i + "=:" + i)) + " returning " + string.Join(",", context.AllColumns) + " into :" + string.Join(",:", context.AllColumns) + ";\r\n";
+            sql += "update " + GetTableName(context.Mapping.TableName, context.Mapping.Schema) + " set " + string.Join(",", context.SetColumns.Select(i => i + "=:" + i)) + " where " + string.Join(" and ", context.PkColumns.Select(i => i + "=:" + i)) + " returning " + string.Join(",", returningCols) + " into :" + string.Join(",:", returningCols) + ";\r\n";
             sql += ":sql_nor := sql%ROWCOUNT;\r\n";
             sql += "end;";
             return sql;
