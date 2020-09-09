@@ -14,28 +14,32 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MagicEastern.ADOExt;
-
+using MagicEastern.ADOExt.SqlServer;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Test
 {
 
     class Program
     {
+        static IServiceProvider sp;
+
         static string SqlConnString = ConfigurationManager.ConnectionStrings["AdventureWorks.ConnectionString.SQL Server (SqlClient)"].ConnectionString;
         
         static void Main(string[] args)
         {
+            IServiceCollection services = new ServiceCollection();
+            services.AddADOExtSqlServer(() => new SqlConnection(SqlConnString));
+            sp = services.BuildServiceProvider();
             TestSqlServer();
             Console.WriteLine("press any key to continue ...");
             Console.ReadKey();
         }
 
 
-
-
         static void TestSqlServer()
         {
-            var rp = new MagicEastern.ADOExt.SqlServer.ResolverProvider(() => new SqlConnection(SqlConnString));
+            var rp = sp.GetService<ResolverProvider>();
             Console.WriteLine("*** Testing SqlServer Library...");
             using (var conn = rp.OpenConnection())
             {

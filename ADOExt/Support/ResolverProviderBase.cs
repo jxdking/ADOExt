@@ -7,17 +7,22 @@ namespace MagicEastern.ADOExt
 {
     public abstract class ResolverProviderBase : IResolverProvider
     {
-        public abstract IDBClassResolver DBClassResolver { get; }
-        public abstract ISqlResolver SqlResolver { get; }
+        public IDBClassResolver DBClassResolver { get; }
+        public ISqlResolver SqlResolver { get; }
+        /// <summary>
+        /// The connection string value after the connection opens.
+        /// </summary>
         public string ConnectionString { get; }
 
         private static int _NextIdx = 0;
         public int Idx { get; }
 
-        public ResolverProviderBase(Func<IDbConnection> createConnection)
+        public ResolverProviderBase(IDBClassResolver dbClassResolver, ISqlResolver sqlResolver)
         {
+            DBClassResolver = dbClassResolver;
+            SqlResolver = sqlResolver;
             Idx = Interlocked.Increment(ref _NextIdx) - 1;
-            using (var conn = createConnection()) {
+            using (var conn = DBClassResolver.CreateConnection()) {
                 conn.Open();
                 ConnectionString = conn.ConnectionString;
             }

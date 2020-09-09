@@ -6,6 +6,7 @@
 
 using MagicEastern.ADOExt;
 using MagicEastern.ADOExt.Oracle;
+using Microsoft.Extensions.DependencyInjection;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
@@ -20,8 +21,14 @@ namespace TestOracle
 {
     class Program
     {
+        static IServiceProvider sp;
+        
         static void Main(string[] args)
         {
+            IServiceCollection services = new ServiceCollection();
+            string connStr = ConfigurationManager.ConnectionStrings["OracleConnStr"].ConnectionString;
+            services.AddADOExtOracle(() => new OracleConnection(connStr));
+            sp = services.BuildServiceProvider();
             TestOracle();
             Console.WriteLine("press any key to continue ...");
             Console.ReadKey();
@@ -30,9 +37,9 @@ namespace TestOracle
         static void TestOracle()
         {
             Console.WriteLine("*** Testing Oracle Database ...");
-            string connStr = ConfigurationManager.ConnectionStrings["OracleConnStr"].ConnectionString;
+            
+            var rp = sp.GetService<ResolverProvider>();
             //Insert2(connStr);
-            var rp = new ResolverProvider(() => new OracleConnection(connStr));
             using (var conn = rp.OpenConnection())
             {
                 var trans = conn.BeginTransaction();
@@ -87,7 +94,7 @@ namespace TestOracle
 
             try
             {
-                var rp = new ResolverProvider(() => new OracleConnection(connStr));
+                var rp = sp.GetService<ResolverProvider>();
                 using (var conn = rp.OpenConnection())
                 {
                     var trans = conn.BeginTransaction();
