@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace MagicEastern.ADOExt.Oracle
 {
-    internal class SqlResolver : ISqlResolver
+    public class SqlResolver : ISqlResolver
     {
         
         private string GetTableName(string table, string schema)

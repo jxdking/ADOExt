@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace MagicEastern.ADOExt.SqlServer
 {
-    internal class DBClassResolver : IDBClassResolver
+    public class DBClassResolver : IDBClassResolver
     {
         private Func<IDbConnection> _CreateConnection;
 
