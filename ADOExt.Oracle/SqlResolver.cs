@@ -53,7 +53,7 @@ namespace MagicEastern.ADOExt.Oracle
 
         private IEnumerable<string> GetReturningCols<T>(DBTableAdapterContext<T> context)
         {
-            var returningCols = context.Mapping.ColumnMappingList.Where(i => i.DataType != "LONG").Select(i => i.ColumnName);
+            var returningCols = context.Mapping.ColumnMappingList.Where(i => i.DataType != "LONG" && i.DataType != "CLOB").Select(i => i.ColumnName);
             return returningCols;
         }
 
