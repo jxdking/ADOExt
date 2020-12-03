@@ -46,6 +46,8 @@
     <IncludeSymbols>true</IncludeSymbols>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageProjectUrl>https://github.com/jxdking/ADOExt</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jxdking/ADOExt</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MagicEastern.ADOExt, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
