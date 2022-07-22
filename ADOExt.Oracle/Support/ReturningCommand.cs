@@ -12,22 +12,24 @@ namespace MagicEastern.ADOExt.Oracle
         {
         }
 
-        private string RowCountParaName = "sql_nor";
+        private readonly string RowCountParaName = "sql_nor";
 
-        public override int Execute(ref T obj, DBConnectionWrapper conn, DBTransactionWrapper trans = null)
+        public override int Execute(T inputObj, DBConnectionWrapper conn, out T result, DBTransactionWrapper trans = null)
         {
-            var sql = CreateSql(obj);
+            var sql = CreateSql(inputObj);
             sql.Parameters.Add(new Parameter(RowCountParaName, -1, System.Data.ParameterDirection.Output));
             conn.Execute(sql, false, trans);
             int nor = (int)sql.Parameters.Single(i => i.Name == RowCountParaName).Output;
 
+            result = default(T);
             if (nor > 0)
             {
+                result = new T();
                 var paras = Parameters.ToList();
                 for (int i = 0; i < paras.Count; i++)
                 {
                     var col = paras[i].Column;
-                    col.PropertySetter(obj, sql.Parameters[i].Output);
+                    col.PropertySetter(result, sql.Parameters[i].Output);
                 }
             }
             return nor;

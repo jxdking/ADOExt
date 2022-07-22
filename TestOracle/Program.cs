@@ -27,7 +27,7 @@ namespace TestOracle
         {
             IServiceCollection services = new ServiceCollection();
             string connStr = ConfigurationManager.ConnectionStrings["OracleConnStr"].ConnectionString;
-            services.AddADOExtOracle(() => new OracleConnection(connStr));
+            services.AddOracle(() => new OracleConnection(connStr));
             sp = services.BuildServiceProvider();
             TestOracle();
             Console.WriteLine("press any key to continue ...");
@@ -38,7 +38,7 @@ namespace TestOracle
         {
             Console.WriteLine("*** Testing Oracle Database ...");
             
-            var rp = sp.GetService<ResolverProvider>();
+            var rp = sp.GetService<DBService>();
             //Insert2(connStr);
             using (var conn = rp.OpenConnection())
             {
@@ -94,7 +94,7 @@ namespace TestOracle
 
             try
             {
-                var rp = sp.GetService<ResolverProvider>();
+                var rp = sp.GetService<DBService>();
                 using (var conn = rp.OpenConnection())
                 {
                     var trans = conn.BeginTransaction();
@@ -110,11 +110,11 @@ namespace TestOracle
             }
         }
 
-        static List<Employee> QueryOracle(DBConnectionWrapper conn, DBTransactionWrapper trans)
+        static IEnumerable<Employee> QueryOracle(DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
             string sql = "select * from employees";
             var ret = conn.Query<Employee>(sql, trans);
-            Console.WriteLine(ret.Count + " rows queried.");
+            Console.WriteLine(ret.Count() + " rows queried.");
             return ret;
         }
 
@@ -127,11 +127,11 @@ namespace TestOracle
         }
 
 
-        static List<string> GetFirstColumn(DBConnectionWrapper conn, DBTransactionWrapper trans)
+        static IEnumerable<string> GetFirstColumn(DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
             string sql = "SELECT first_name FROM employees";
             var ret = conn.GetFirstColumn<string>(sql, trans);
-            Console.WriteLine("Queried " + ret.Count + " lines of first column.");
+            Console.WriteLine("Queried " + ret.Count() + " lines of first column.");
             return ret;
         }
 
@@ -158,7 +158,7 @@ namespace TestOracle
                 MANAGER_ID = 205,
                 DEPARTMENT_ID = 110
             };
-            var ret = conn.Insert(ref obj, trans);
+            var ret = conn.Insert(obj, trans);
             Console.WriteLine(ret + " rows inserted");
             return obj;
         }
@@ -170,7 +170,7 @@ namespace TestOracle
                 EMPLOYEE_ID = 207,
                 HIRE_DATE = DateTime.Now.AddMonths(-1)
             };
-            int ret = conn.Update(ref obj, trans, i => i.HIRE_DATE);
+            int ret = conn.Update(obj, trans, i => i.HIRE_DATE);
             Console.WriteLine(ret + " rows updated");
             if (ret > 0)
             {

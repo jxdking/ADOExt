@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>MagicEastern.ADOExt.Oracle</id>
-    <version>2.1.6</version>
+    <version>3.0.0</version>
     <title>MagicEastern.ADOExt.Oracle</title>
     <authors>Kevin Jin</authors>
     <owners>Kevin Jin</owners>
@@ -15,7 +15,7 @@
     <copyright>Copyright 2020</copyright>
     <tags>ORM ADO.NET Mapping Database</tags>
 	<dependencies>
-		<dependency id="MagicEastern.ADOExt" version="2.1.0" />
+		<dependency id="MagicEastern.ADOExt" version="3.0.0" />
 	</dependencies>
   </metadata>
 </package>

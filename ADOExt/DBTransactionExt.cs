@@ -7,7 +7,7 @@ namespace MagicEastern.ADOExt
 {
     public static class DBTransactionExt
     {
-        public static List<T> Query<T>(this DBTransactionWrapper trans, Sql sql) where T : new()
+        public static IEnumerable<T> Query<T>(this DBTransactionWrapper trans, Sql sql) where T : new()
         {
             return trans.Connection.Query<T>(sql, trans);
         }
@@ -17,7 +17,7 @@ namespace MagicEastern.ADOExt
             return trans.Connection.GetSingleValue<T>(sql, trans);
         }
 
-        public static List<T> GetFirstColumn<T>(this DBTransactionWrapper trans, Sql sql)
+        public static IEnumerable<T> GetFirstColumn<T>(this DBTransactionWrapper trans, Sql sql)
         {
             return trans.Connection.GetFirstColumn<T>(sql, trans);
         }
@@ -37,14 +37,24 @@ namespace MagicEastern.ADOExt
             return trans.Connection.Delete<T>(obj, trans);
         }
 
-        public static int Insert<T>(this DBTransactionWrapper trans, ref T obj) where T : new()
+        public static int Insert<T>(this DBTransactionWrapper trans, T obj, out T result) where T : new()
         {
-            return trans.Connection.Insert<T>(ref obj, trans);
+            return trans.Connection.Insert<T>(obj, out result, trans);
         }
 
-        public static int Update<T>(this DBTransactionWrapper trans, ref T obj, params Expression<Func<T, object>>[] targetProperties) where T : new()
+        public static int Insert<T>(this DBTransactionWrapper trans, T obj) where T : new()
         {
-            return trans.Connection.Update<T>(ref obj, trans, targetProperties);
+            return trans.Connection.Insert<T>(obj, out _, trans);
+        }
+
+        public static int Update<T>(this DBTransactionWrapper trans, T obj, out T result, params Expression<Func<T, object>>[] targetProperties) where T : new()
+        {
+            return trans.Connection.Update<T>(obj, out result, trans, targetProperties);
+        }
+
+        public static int Update<T>(this DBTransactionWrapper trans, T obj, params Expression<Func<T, object>>[] targetProperties) where T : new()
+        {
+            return trans.Connection.Update<T>(obj, out _, trans, targetProperties);
         }
     }
 }

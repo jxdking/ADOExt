@@ -51,9 +51,9 @@ namespace MagicEastern.ADOExt.Oracle
             return new Sql(sqltxt, new Parameter("tablename", table.ToUpper()), new Parameter("tableschema", schema?.ToUpper()));
         }
 
-        private IEnumerable<string> GetReturningCols<T>(DBTableAdapterContext<T> context)
+        private IList<string> GetReturningCols<T>(DBTableAdapterContext<T> context)
         {
-            var returningCols = context.Mapping.ColumnMappingList.Where(i => i.DataType != "LONG" && i.DataType != "CLOB").Select(i => i.ColumnName);
+            var returningCols = context.Mapping.ColumnMappingList.Where(i => i.DataType != "LONG" && i.DataType != "CLOB").Select(i => i.ColumnName).ToList();
             return returningCols;
         }
 

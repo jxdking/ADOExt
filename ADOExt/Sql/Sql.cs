@@ -1,28 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MagicEastern.ADOExt
 {
-    public class Sql : ISql
+    public class Sql
     {
-        private const int _DefaultTimeOut = 30;
+        public static int DefaultCommandTimeout = 30;
 
         public string Text { get; set; }
 
-        public List<Parameter> Parameters { get; set; }
+        public IList<Parameter> Parameters { get; set; }
 
         public int CommandTimeout { get; set; }
 
-        private void Init(string cmdText, IEnumerable<Parameter> parameters)
+        protected virtual void Init(string cmdText, IEnumerable<Parameter> parameters)
         {
             if (string.IsNullOrWhiteSpace(cmdText))
             {
                 throw new ArgumentNullException("sql text is required!");
             }
-            Parameters = new List<Parameter>();
-            Parameters.AddRange(parameters);
+            Parameters = parameters.ToList();
             Text = cmdText;
-            CommandTimeout = _DefaultTimeOut;
+            CommandTimeout = DefaultCommandTimeout;
         }
 
         public Sql(string cmdText, IEnumerable<Parameter> parameters)
@@ -33,14 +33,6 @@ namespace MagicEastern.ADOExt
         public Sql(string cmdText, params Parameter[] parameters)
         {
             Init(cmdText, parameters);
-        }
-
-        public Sql Clone()
-        {
-            // "ret" needs to have a new array of Parameter. Shallow copy(MemberwiseClone) will not work for this situation.
-            var ret = new Sql(Text, Parameters);
-            ret.CommandTimeout = CommandTimeout;
-            return ret;
         }
 
         public override string ToString()

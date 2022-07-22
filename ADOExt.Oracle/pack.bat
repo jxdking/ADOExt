@@ -2,5 +2,5 @@
 :pause
 nuget pack -Symbols -SymbolPackageFormat snupkg -Properties Configuration=Release
 pause
-nuget add MagicEastern.ADOExt.Oracle.2.1.5.nupkg -source c:\WebApplications\nuget_repo
+nuget add MagicEastern.ADOExt.Oracle.3.0.0.nupkg -source .\
 pause

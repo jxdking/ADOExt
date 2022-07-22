@@ -7,29 +7,29 @@ using System.Linq.Expressions;
 
 namespace MagicEastern.ADOExt
 {
-    public static class DbConnectionExt
+    public static class DBConnectionExt
     {
         public static IDbCommand CreateCommand(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)
         {
-            return conn.ResolverProvider.DBClassResolver.CreateCommand(sql, conn, trans);
+            return conn.DBService.DBClassResolver.CreateCommand(sql, conn, trans);
         }
 
-        public static List<T> Query<T>(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null) where T : new()
+        public static IEnumerable<T> Query<T>(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null) where T : new()
         {
             IDbCommand command = conn.CreateCommand(sql, trans);
 
+            IDataReader reader;
             try
             {
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    return reader.ToList<T>();
-                }
+                reader = command.ExecuteReader();
             }
             catch (DbException ex)
             {
-                //throw;
                 throw new SqlCmdException("Error occurred when running SQL!", sql, ex);
             }
+
+            // reader will be closed inside reader.AsEnumerable();
+            return reader.AsEnumerable<T>(conn.DBService.DBObjectMappingFactory);
         }
 
         public static T GetSingleValue<T>(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)
@@ -43,7 +43,6 @@ namespace MagicEastern.ADOExt
             }
             catch (DbException ex)
             {
-                //throw;
                 throw new SqlCmdException("Error occurred when running SQL!", sql, ex);
             }
         }
@@ -54,41 +53,32 @@ namespace MagicEastern.ADOExt
             public T Val { get; set; }
         }
 
-        public static List<T> GetFirstColumn<T>(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)
+        public static IEnumerable<T> GetFirstColumn<T>(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)
         {
             IDbCommand command = conn.CreateCommand(sql, trans);
 
-            var mapping = DBObjectMapping<SingleColumn<T>>.Get().ColumnMappingList.Single();
+            var mapping = conn.DBService.DBObjectMappingFactory.Get<SingleColumn<T>>().ColumnMappingList.Single();
 
-            List<T> ret = new List<T>();
-
+            IDataReader reader;
             try
             {
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    SingleColumn<T> obj = new SingleColumn<T>();
-
-                    Action<SingleColumn<T>, IDataRecord, int> setter = null;
-                    if (reader.Read())
-                    {
-                        setter = mapping.GetPropSetterForRecord(reader.GetFieldType(0));
-                        reader.SetProperty(obj, mapping, setter, 0);
-                        ret.Add(obj.Val);
-                    }
-
-                    while (reader.Read())
-                    {
-                        reader.SetProperty(obj, mapping, setter, 0);
-                        ret.Add(obj.Val);
-                    }
-                }
+                reader = command.ExecuteReader();
             }
             catch (DbException ex)
             {
-                //throw;
                 throw new SqlCmdException("Error occurred when running SQL!", sql, ex);
             }
-            return ret;
+
+            SingleColumn<T> obj;
+            Action<SingleColumn<T>, IDataRecord, int> setter = mapping.GetPropSetterForRecord(reader.GetFieldType(0));
+
+            // reader will be closed inside reader.AsEnumerable();
+            return reader.AsEnumerable().Transform(record =>
+            {
+                obj = new SingleColumn<T>();
+                reader.SetProperty(obj, mapping, setter, 0);
+                return obj.Val;
+            });
         }
 
         public static int Execute(this DBConnectionWrapper conn, Sql sql, bool storeProcedure = false, DBTransactionWrapper trans = null)
@@ -96,7 +86,7 @@ namespace MagicEastern.ADOExt
             IDbCommand command = conn.CreateCommand(sql, trans);
             if (storeProcedure) { command.CommandType = CommandType.StoredProcedure; }
 
-            int ret = 0;
+            int ret;
             try
             {
                 ret = command.ExecuteNonQuery();
@@ -112,7 +102,6 @@ namespace MagicEastern.ADOExt
             }
             catch (DbException ex)
             {
-                //throw;
                 throw new SqlCmdException("Error occurred when running SQL!", sql, ex);
             }
 
@@ -137,26 +126,36 @@ namespace MagicEastern.ADOExt
 
         public static T Load<T>(this DBConnectionWrapper conn, T obj, DBTransactionWrapper trans = null) where T : new()
         {
-            var ta = conn.ResolverProvider.GetDBTableAdapter<T>(conn, trans);
+            var ta = conn.DBService.DBTableAdapterFactory.Get<T>(conn, trans);
             return ta.Load(obj, conn, trans);
         }
 
         public static int Delete<T>(this DBConnectionWrapper conn, T obj, DBTransactionWrapper trans = null) where T : new()
         {
-            var ta = conn.ResolverProvider.GetDBTableAdapter<T>(conn, trans);
+            var ta = conn.DBService.DBTableAdapterFactory.Get<T>(conn, trans);
             return ta.Delete(obj, conn, trans);
         }
 
-        public static int Insert<T>(this DBConnectionWrapper conn, ref T obj, DBTransactionWrapper trans = null) where T : new()
+        public static int Insert<T>(this DBConnectionWrapper conn, T obj, out T result, DBTransactionWrapper trans = null) where T : new()
         {
-            var ta = conn.ResolverProvider.GetDBTableAdapter<T>(conn, trans);
-            return ta.Insert(ref obj, conn, trans);
+            var ta = conn.DBService.DBTableAdapterFactory.Get<T>(conn, trans);
+            return ta.Insert(obj, conn, out result, trans);
         }
 
-        public static int Update<T>(this DBConnectionWrapper conn, ref T obj, DBTransactionWrapper trans = null, params Expression<Func<T, object>>[] targetProperties) where T : new()
+        public static int Insert<T>(this DBConnectionWrapper conn, T obj, DBTransactionWrapper trans = null) where T : new()
         {
-            var ta = conn.ResolverProvider.GetDBTableAdapter<T>(conn, trans);
-            return ta.Update(ref obj, conn, trans, targetProperties);
+            return Insert(conn, obj, out _, trans);
+        }
+
+        public static int Update<T>(this DBConnectionWrapper conn, T obj, out T result, DBTransactionWrapper trans = null, params Expression<Func<T, object>>[] targetProperties) where T : new()
+        {
+            var ta = conn.DBService.DBTableAdapterFactory.Get<T>(conn, trans);
+            return ta.Update(obj, conn, out result, trans, targetProperties);
+        }
+
+        public static int Update<T>(this DBConnectionWrapper conn, T obj, DBTransactionWrapper trans = null, params Expression<Func<T, object>>[] targetProperties) where T : new()
+        {
+            return Update(conn, obj, out _, trans, targetProperties);
         }
     }
 

@@ -8,12 +8,12 @@ namespace MagicEastern.ADOExt
     public class DBConnectionWrapper : IDbConnection
     {
         public IDbConnection Connection { get; private set; }
-        public IResolverProvider ResolverProvider { get; }
+        public IDBService DBService { get; }
 
-        public DBConnectionWrapper(IDbConnection connection, IResolverProvider resolverProvider)
+        public DBConnectionWrapper(IDbConnection connection, IDBService dbService)
         {
             Connection = connection;
-            ResolverProvider = resolverProvider;
+            DBService = dbService;
         }
 
         public string ConnectionString { get { return Connection.ConnectionString; } set { Connection.ConnectionString = value; } }
@@ -83,6 +83,10 @@ namespace MagicEastern.ADOExt
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
             
+        }
+
+        ~DBConnectionWrapper() {
+            Dispose(false);
         }
         #endregion
     }

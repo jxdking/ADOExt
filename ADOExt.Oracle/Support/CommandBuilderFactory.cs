@@ -8,9 +8,9 @@ using MagicEastern.ADOExt;
 
 namespace MagicEastern.ADOExt.Oracle
 {
-    public class CommandBuilderFactory : CommandBuilderFactoryBase
+    public class CommandBuilderFactory : ICommandBuilderFactory
     {
-        public override ICommandBuilder<T> CreateCommandBuilder<T>(ISqlResolver sqlResolver)
+        public ICommandBuilder<T> CreateCommandBuilder<T>(ISqlResolver sqlResolver) where T : new()
         {
             return new CommandBuilder<T>(sqlResolver);
         }

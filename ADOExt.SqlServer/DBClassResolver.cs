@@ -8,8 +8,7 @@ namespace MagicEastern.ADOExt.SqlServer
 {
     public class DBClassResolver : IDBClassResolver
     {
-        private Func<IDbConnection> _CreateConnection;
-
+        private readonly Func<IDbConnection> _CreateConnection;
         
         public DBClassResolver(Func<IDbConnection> createConnection)
         {
@@ -22,9 +21,9 @@ namespace MagicEastern.ADOExt.SqlServer
             if (trans != null) {
                 command.Transaction = (SqlTransaction)trans.Transaction;
             }
-            if (sql.Parameters.Count > 0)
+            for (int i = 0; i < sql.Parameters.Count; i++)
             {
-                command.Parameters.AddRange(sql.Parameters.Select(i => ToSqlParameter(i)).ToArray());
+                command.Parameters.Add(ToSqlParameter(sql.Parameters[i]));
             }
             if (sql.CommandTimeout >= 0)
             {

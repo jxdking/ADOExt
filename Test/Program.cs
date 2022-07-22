@@ -22,15 +22,21 @@ namespace Test
 
     class Program
     {
-        static IServiceProvider sp;
+        static DBServiceManager DBManager;
 
-        static string SqlConnString = ConfigurationManager.ConnectionStrings["AdventureWorks.ConnectionString.SQL Server (SqlClient)"].ConnectionString;
+        static readonly string SqlConnString = ConfigurationManager.ConnectionStrings["AdventureWorks.ConnectionString.SQL Server (SqlClient)"].ConnectionString;
         
         static void Main(string[] args)
         {
-            IServiceCollection services = new ServiceCollection();
-            services.AddADOExtSqlServer(() => new SqlConnection(SqlConnString));
-            sp = services.BuildServiceProvider();
+            var sc = new ServiceCollection();
+            sc.AddDBServiceManger(new DBServiceConfig[] {
+                new DBServiceConfig {
+                    Name = "mydb",
+                    ConfigServices = svrs => svrs.AddSqlServer(() => new SqlConnection(SqlConnString)) 
+                }
+            });
+            var sp = sc.BuildServiceProvider();
+            DBManager = sp.GetService<DBServiceManager>();
             TestSqlServer();
             Console.WriteLine("press any key to continue ...");
             Console.ReadKey();
@@ -39,7 +45,7 @@ namespace Test
 
         static void TestSqlServer()
         {
-            var rp = sp.GetService<ResolverProvider>();
+            var rp = DBManager;
             Console.WriteLine("*** Testing SqlServer Library...");
             using (var conn = rp.OpenConnection())
             {
@@ -58,12 +64,16 @@ namespace Test
             }
         }
 
-        static List<SalesOrderHeader> Query(DBConnectionWrapper conn, DBTransactionWrapper trans)
+        static IEnumerable<SalesOrderHeader> Query(DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
             string sql = "SELECT [SalesOrderID],[RevisionNumber],[OrderDate],[DueDate],[ShipDate],[Status],[OnlineOrderFlag],[SalesOrderNumber],[PurchaseOrderNumber],[AccountNumber],[CustomerID],[SalesPersonID],[TerritoryID],[BillToAddressID],[ShipToAddressID],[ShipMethodID],[CreditCardID],[CreditCardApprovalCode],[CurrencyRateID],[SubTotal],[TaxAmt],[Freight],[TotalDue],[Comment],[rowguid],[ModifiedDate] FROM [Sales].[SalesOrderHeader]";
             var ret = conn.Query<SalesOrderHeader>(sql, trans);
-            Console.WriteLine("Queried " + ret.Count + " records.");
-            return ret;
+            var t = ret.Last();
+            //t = ret.Take(2).Last();
+            //var ret = conn.Query<SalesOrderHeader>(sql, trans).Take(1);
+            //Console.WriteLine("Queried " + t.Count() + " records.");
+            return null;
+            //return ret;
         }
 
         static int GetSingleValue(DBConnectionWrapper conn, DBTransactionWrapper trans = null)
@@ -74,11 +84,11 @@ namespace Test
             return ret;
         }
 
-        static List<int> GetFirstColumn(DBConnectionWrapper conn, DBTransactionWrapper trans = null)
+        static IEnumerable<int> GetFirstColumn(DBConnectionWrapper conn, DBTransactionWrapper trans = null)
         {
             string sql = "SELECT SalesOrderID FROM [Sales].[SalesOrderHeader]";
-            var ret = conn.GetFirstColumn<int>(sql, trans);
-            Console.WriteLine("Queried " + ret.Count + " lines of first column.");
+            var ret = conn.GetFirstColumn<int>(sql, trans).ToList();
+            Console.WriteLine("Queried " + ret.Count() + " lines of first column.");
             return ret;
         }
 
@@ -109,7 +119,7 @@ namespace Test
                 Rowguid = Guid.NewGuid(),
                 ModifiedDate = DateTime.Now
             };
-            int nor = conn.Insert(ref order, trans);
+            int nor = conn.Insert(order, trans);
             var id = conn.GetSingleValue<int>("SELECT @@IDENTITY", trans);
             order.SalesOrderId = id;
             Console.WriteLine(nor + " record inserted.");
@@ -123,13 +133,13 @@ namespace Test
 
         static void Update(DBConnectionWrapper conn, SalesOrderHeader obj, DBTransactionWrapper trans = null)
         {
-            int nor = conn.Update(ref obj, trans);
+            int nor = conn.Update(obj, trans);
             Console.WriteLine(nor + " line updated.");
             var obj2 = new SalesOrderHeader();
             obj2.SalesOrderId = obj.SalesOrderId;
             obj2.ModifiedDate = DateTime.Now;
             obj2.Status = 2;
-            nor = conn.Update(ref obj2, trans, i => i.ModifiedDate, i => i.Status);
+            nor = conn.Update(obj2, trans, i => i.ModifiedDate, i => i.Status);
             Console.WriteLine(nor + " line updated (only update ModifiedDate and Status).");
         }
     }

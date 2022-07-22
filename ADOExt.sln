@@ -7,11 +7,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADOExt", "ADOExt\ADOExt.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADOExt.SqlServer", "ADOExt.SqlServer\ADOExt.SqlServer.csproj", "{1DF999A6-B161-4620-901A-5D3A08DEC5DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADOExt.Oracle", "ADOExt.Oracle\ADOExt.Oracle.csproj", "{F5A50DD5-891A-434D-A605-F8A45A5AB7FE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSql", "Test\TestSql.csproj", "{9EDD50AE-D208-4902-9187-82CF3825CD0F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestOracle", "TestOracle\TestOracle.csproj", "{F9DB4180-44C8-4C5A-8321-0A6FDFFC233F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADOExt.Oracle", "ADOExt.Oracle\ADOExt.Oracle.csproj", "{1A057E73-10BD-49DA-8D2F-F9694D73B941}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B69D7AA1-547E-49B6-A789-A11B81B786E8}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +32,6 @@ Global
 		{1DF999A6-B161-4620-901A-5D3A08DEC5DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DF999A6-B161-4620-901A-5D3A08DEC5DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DF999A6-B161-4620-901A-5D3A08DEC5DC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F5A50DD5-891A-434D-A605-F8A45A5AB7FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F5A50DD5-891A-434D-A605-F8A45A5AB7FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F5A50DD5-891A-434D-A605-F8A45A5AB7FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F5A50DD5-891A-434D-A605-F8A45A5AB7FE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9EDD50AE-D208-4902-9187-82CF3825CD0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9EDD50AE-D208-4902-9187-82CF3825CD0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EDD50AE-D208-4902-9187-82CF3825CD0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +40,10 @@ Global
 		{F9DB4180-44C8-4C5A-8321-0A6FDFFC233F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9DB4180-44C8-4C5A-8321-0A6FDFFC233F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9DB4180-44C8-4C5A-8321-0A6FDFFC233F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A057E73-10BD-49DA-8D2F-F9694D73B941}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A057E73-10BD-49DA-8D2F-F9694D73B941}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A057E73-10BD-49DA-8D2F-F9694D73B941}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A057E73-10BD-49DA-8D2F-F9694D73B941}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

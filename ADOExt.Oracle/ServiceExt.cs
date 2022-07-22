@@ -10,13 +10,18 @@ namespace MagicEastern.ADOExt.Oracle
 {
     public static class ServiceExt
     {
-        public static IServiceCollection AddADOExtOracle(this IServiceCollection services, Func<IDbConnection> createConnection)
+        public static IServiceCollection AddOracle(this IServiceCollection services, Func<IDbConnection> createConnection)
         {
-            return services.AddSingleton(
-                new ResolverProvider(
-                    new DBClassResolver(createConnection), new SqlResolver(), new CommandBuilderFactory()
-                )
-            );
+            services.AddSingleton<IDBObjectMappingFactory, DBObjectMappingFactory>();
+            services.AddTransient<IDBTableMappingFactory, DBTableMappingFactory>();
+            services.AddTransient<IDBTableAdapterFactory, DBTableAdapterFactory>();
+
+            services.AddTransient<IDBClassResolver>(_ => new DBClassResolver(createConnection));
+            services.AddTransient<ISqlResolver, SqlResolver>();
+            services.AddTransient<ICommandBuilderFactory, CommandBuilderFactory>();
+            services.AddSingleton<IDBService, DBService>();
+
+            return services;
         }
     }
 }

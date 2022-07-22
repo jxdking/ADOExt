@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 
 namespace MagicEastern.ADOExt
@@ -20,49 +21,67 @@ namespace MagicEastern.ADOExt
             }
         }
 
-        public static List<T> ToList<T>(this IDataReader reader) where T : new()
+        /// <summary>
+        /// yield return the reader one record by one record. reader.Close() is called at the end of enumeration.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        public static IEnumerable<IDataRecord> AsEnumerable(this IDataReader reader)
         {
-            List<T> res = new List<T>();
-            var mapping = DBObjectMapping<T>.Get().ColumnMappingList;
+            return ToEnumerable(reader).AsSingleUse();
+        }
+
+        private static IEnumerable<IDataRecord> ToEnumerable(IDataReader reader)
+        {
+            try
+            {
+                while (reader.Read())
+                {
+                    yield return reader;
+                }
+            }
+            finally
+            {
+                reader.Close();
+            }
+        }
+
+        public static IEnumerable<T> AsEnumerable<T>(this IDataReader reader, IDBObjectMappingFactory dbObjectMappingFactory) where T : new()
+        {
+            var objectMapping = dbObjectMappingFactory.Get<T>();
+            var mapping = objectMapping.ColumnMappingList;
             int[] ordinalAry = new int[mapping.Count];
             var setterAry = new Action<T, IDataRecord, int>[mapping.Count];
 
+            int i;
+            string cName = null;
+            try
+            {
+                int ord;
+                for (i = 0; i < mapping.Count; i++)
+                {
+                    cName = mapping[i].ColumnName;
+                    ord = reader.GetOrdinal(cName);
+                    ordinalAry[i] = ord;
+                    setterAry[i] = mapping[i].GetPropSetterForRecord(reader.GetFieldType(ord));
+                }
+            }
+            catch (IndexOutOfRangeException ex)
+            {
+                throw new IndexOutOfRangeException("Unable to find specified column[" + cName + "] in DataReader", ex);
+            }
+
             T obj;
 
-            if (reader.Read())
+            return reader.AsEnumerable().Transform(rdr =>
             {
                 obj = new T();
-                string cName = null;
-                try
+                for (i = 0; i < mapping.Count; i++)
                 {
-                    for (int i = 0; i < mapping.Count; i++)
-                    {
-                        cName = mapping[i].ColumnName;
-                        ordinalAry[i] = reader.GetOrdinal(cName);
-                        setterAry[i] = mapping[i].GetPropSetterForRecord(reader.GetFieldType(ordinalAry[i]));
-
-                        reader.SetProperty(obj, mapping[i], setterAry[i], ordinalAry[i]);
-                    }
-
-                    res.Add(obj);
+                    rdr.SetProperty(obj, mapping[i], setterAry[i], ordinalAry[i]);
                 }
-                catch (IndexOutOfRangeException ex)
-                {
-                    throw new IndexOutOfRangeException("Unable to find specified column[" + cName + "] in DataReader", ex);
-                }
-            }
-
-            while (reader.Read())
-            {
-                obj = new T();
-                for (int i = 0; i < mapping.Count; i++)
-                {
-                    reader.SetProperty(obj, mapping[i], setterAry[i], ordinalAry[i]);
-                }
-                res.Add(obj);
-            }
-
-            return res;
+                return obj;
+            });
         }
     }
 }

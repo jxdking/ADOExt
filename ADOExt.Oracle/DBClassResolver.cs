@@ -8,7 +8,7 @@ namespace MagicEastern.ADOExt.Oracle
 {
     public class DBClassResolver : IDBClassResolver
     {
-        private Func<IDbConnection> _CreateConnection;
+        private readonly Func<IDbConnection> _CreateConnection;
 
         public DBClassResolver(Func<IDbConnection> createConnection)
         {
@@ -25,7 +25,9 @@ namespace MagicEastern.ADOExt.Oracle
             if (sql.Parameters.Count > 0)
             {
                 command.BindByName = true;
-                command.Parameters.AddRange(sql.Parameters.Select(i => ToOracleParameter(i)).ToArray());
+                for (int i = 0; i < sql.Parameters.Count; i++) {
+                    command.Parameters.Add(ToOracleParameter(sql.Parameters[i]));
+                }
             }
             if (sql.CommandTimeout >= 0)
             {

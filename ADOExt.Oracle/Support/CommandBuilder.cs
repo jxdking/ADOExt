@@ -9,7 +9,7 @@ namespace MagicEastern.ADOExt.Oracle
 {
     public class CommandBuilder<T> : ICommandBuilder<T> where T : new()
     {
-        private ISqlResolver _SqlResolver;
+        private readonly ISqlResolver _SqlResolver;
 
         public CommandBuilder(ISqlResolver sqlResolver)
         {
