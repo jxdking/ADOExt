@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MagicEastern.ADOExt
 {
     public class DBTableAdapterFactory : IDBTableAdapterFactory
     {
         private readonly ConcurrentDictionary<Type, object> _Cache = new ConcurrentDictionary<Type, object>();
-
-        public ICommandBuilderFactory CommandBuilderFactory { get; }
 
         /// <summary>
         /// 
@@ -24,14 +20,8 @@ namespace MagicEastern.ADOExt
             var t = typeof(T);
             return (DBTableAdapter<T>)_Cache.GetOrAdd(t, (_) =>
             {
-                var commandBuilder = CommandBuilderFactory.CreateCommandBuilder<T>(currentConnection.DBService.SqlResolver);
-                return new DBTableAdapter<T>(commandBuilder, currentConnection, currentTrans);
+                return new DBTableAdapter<T>(currentConnection, currentTrans);
             });
-        }
-
-        public DBTableAdapterFactory(ICommandBuilderFactory commandBuilderFactory)
-        {
-            CommandBuilderFactory = commandBuilderFactory;
         }
     }
 }

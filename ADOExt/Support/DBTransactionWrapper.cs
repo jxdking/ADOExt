@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
 namespace MagicEastern.ADOExt
 {
+    /// <summary>
+    /// The transaction object that rollbacks on Dispose() by default.
+    /// </summary>
     public class DBTransactionWrapper : IDbTransaction
     {
         public IDbTransaction Transaction { get; private set; }
@@ -21,12 +22,22 @@ namespace MagicEastern.ADOExt
 
         public void Commit()
         {
+            if (Transaction == null)
+            {
+                throw new InvalidOperationException("The transaction has completed already.");
+            }
             Transaction.Commit();
+            Dispose(true);
         }
 
         public void Rollback()
         {
+            if (Transaction == null)
+            {
+                throw new InvalidOperationException("The transaction has completed already.");
+            }
             Transaction.Rollback();
+            Dispose(true);
         }
 
         #region IDisposable Support
@@ -49,11 +60,17 @@ namespace MagicEastern.ADOExt
         // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            // The transaction is never Commit() or Rollback(), do the Rollback() on Dispose() by default.
+            if (Transaction != null)
+            {
+                Transaction.Rollback();
+            }
+
             Dispose(true);
         }
 
-        ~DBTransactionWrapper() {
+        ~DBTransactionWrapper()
+        {
             Dispose(false);
         }
         #endregion

@@ -1,15 +1,11 @@
-﻿using System;
-using System.Data;
-using System.Linq.Expressions;
-
-namespace MagicEastern.ADOExt
+﻿namespace MagicEastern.ADOExt
 {
     public interface IDBTableAdapter<T> where T : new()
     {
         void ApplyMaxLength(T entity);
-        int Delete(T obj, DBConnectionWrapper conn, DBTransactionWrapper trans = null);
-        int Insert(T obj, DBConnectionWrapper conn, out T result, DBTransactionWrapper trans = null);
-        T Load(T obj, DBConnectionWrapper conn, DBTransactionWrapper trans = null);
-        int Update(T obj, DBConnectionWrapper conn, out T result, DBTransactionWrapper trans = null, params Expression<Func<T, object>>[] targetProperties);
+        int Delete(T obj, DBConnectionWrapper conn, DBTransactionWrapper trans);
+        int Insert(T obj, object properties, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans);
+        T Load(T obj, DBConnectionWrapper conn, DBTransactionWrapper trans);
+        int Update(T obj, object properties, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans);
     }
 }

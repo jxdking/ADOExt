@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MagicEastern.ADOExt.Oracle
 {
     public class SqlResolver : ISqlResolver
     {
-        
-        private string GetTableName(string table, string schema)
+        internal string GetTableName(string table, string schema)
         {
             string tablename = table;
             if (!string.IsNullOrWhiteSpace(schema))
@@ -17,7 +14,7 @@ namespace MagicEastern.ADOExt.Oracle
             return tablename;
         }
 
-        public Sql ColumnMetaDataFromTable(string table, string schema = null)
+        public Sql ColumnMetaDataFromTable(string table, string schema)
         {
             if (string.IsNullOrEmpty(table))
             {
@@ -42,51 +39,31 @@ namespace MagicEastern.ADOExt.Oracle
             if (!string.IsNullOrWhiteSpace(schema))
             {
                 sqltxt = string.Format(sqltxt, "and upper(a.owner) = :tableschema", "and upper(c.owner) = :tableschema");
-            }
-            else
-            {
-                sqltxt = string.Format(sqltxt, "", "");
+                return new Sql(sqltxt, new Parameter { Name = "tablename", Value = table.ToUpper() }, new Parameter { Name = "tableschema", Value = schema?.ToUpper() });
             }
 
-            return new Sql(sqltxt, new Parameter("tablename", table.ToUpper()), new Parameter("tableschema", schema?.ToUpper()));
+            sqltxt = string.Format(sqltxt, "", "");
+            return new Sql(sqltxt, new Parameter { Name = "tablename", Value = table.ToUpper() });
         }
 
-        private IList<string> GetReturningCols<T>(DBTableAdapterContext<T> context)
+        public SqlInsertTemplateBase<T> GetInsertTemplate<T>(DBTableAdapterContext<T> context) where T : new()
         {
-            var returningCols = context.Mapping.ColumnMappingList.Where(i => i.DataType != "LONG" && i.DataType != "CLOB").Select(i => i.ColumnName).ToList();
-            return returningCols;
+            return new SqlInsertTemplate<T>(context, this);
         }
 
-        public string InsertTemplate<T>(DBTableAdapterContext<T> context)
+        public SqlUpdateTemplateBase<T> GetUpdateTemplate<T>(DBTableAdapterContext<T> context) where T : new()
         {
-            var returningCols = GetReturningCols(context);
-            string sql = "begin\r\n";
-            sql += "insert into " + GetTableName(context.Mapping.TableName, context.Mapping.Schema) + "(" + string.Join(",", context.InsertColumns) + ") values (:" + string.Join(",:", context.InsertColumns) + ") returning " + string.Join(",", returningCols) + " into :" + string.Join(",:", returningCols) + ";\r\n";
-            sql += ":sql_nor := sql%ROWCOUNT;\r\n";
-            sql += "end;";
-            return sql;
+            return new SqlUpdateTemplate<T>(context, this);
         }
 
-        public string DeleteTemplate<T>(DBTableAdapterContext<T> context)
+        public SqlLoadTemplateBase<T> GetLoadTemplate<T>(DBTableAdapterContext<T> context) where T : new()
         {
-            string sql = "delete from " + GetTableName(context.Mapping.TableName, context.Mapping.Schema) + " where " + string.Join(" and ", context.PkColumns.Select(i => i + "=:" + i));
-            return sql;
+            return new SqlLoadTemplate<T>(context, this);
         }
 
-        public string UpdateTemplate<T>(DBTableAdapterContext<T> context)
+        public SqlDeleteTemplateBase<T> GetDeleteTemplate<T>(DBTableAdapterContext<T> context) where T : new()
         {
-            var returningCols = GetReturningCols(context);
-            string sql = "begin\r\n";
-            sql += "update " + GetTableName(context.Mapping.TableName, context.Mapping.Schema) + " set " + string.Join(",", context.SetColumns.Select(i => i + "=:" + i)) + " where " + string.Join(" and ", context.PkColumns.Select(i => i + "=:" + i)) + " returning " + string.Join(",", returningCols) + " into :" + string.Join(",:", returningCols) + ";\r\n";
-            sql += ":sql_nor := sql%ROWCOUNT;\r\n";
-            sql += "end;";
-            return sql;
-        }
-
-        public string LoadTemplate<T>(DBTableAdapterContext<T> context)
-        {
-            string sql = "select " + string.Join(",", context.AllColumns) + " from " + GetTableName(context.Mapping.TableName, context.Mapping.Schema) + " where " + string.Join(" and ", context.PkColumns.Select(i => i + "=:" + i));
-            return sql;
+            return new SqlDeleteTemplate<T>(context, this);
         }
     }
 }

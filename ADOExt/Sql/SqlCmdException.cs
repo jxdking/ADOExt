@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Text;
 
 namespace MagicEastern.ADOExt
 {
-    public class SqlCmdException: DbException
+    public class SqlCmdException : DbException
     {
         public Sql Sql { get; }
 

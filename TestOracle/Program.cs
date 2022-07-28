@@ -21,14 +21,15 @@ namespace TestOracle
 {
     class Program
     {
-        static IServiceProvider sp;
-        
+        static IDBService db;
+
         static void Main(string[] args)
         {
             IServiceCollection services = new ServiceCollection();
             string connStr = ConfigurationManager.ConnectionStrings["OracleConnStr"].ConnectionString;
             services.AddOracle(() => new OracleConnection(connStr));
-            sp = services.BuildServiceProvider();
+            var sp = services.BuildServiceProvider();
+            db = sp.GetService<IDBService>();
             TestOracle();
             Console.WriteLine("press any key to continue ...");
             Console.ReadKey();
@@ -37,8 +38,8 @@ namespace TestOracle
         static void TestOracle()
         {
             Console.WriteLine("*** Testing Oracle Database ...");
-            
-            var rp = sp.GetService<DBService>();
+
+            var rp = db;
             //Insert2(connStr);
             using (var conn = rp.OpenConnection())
             {
@@ -48,6 +49,7 @@ namespace TestOracle
                 var firstcol = GetFirstColumn(conn, trans);
                 var emp = Load(conn, trans);
                 var inserted = Insert(conn, trans);
+                //Update0(inserted, conn, trans);
                 var updated = Update(conn, trans);
                 nor = Delete(conn, trans);
                 //sert2(conn, trans);
@@ -94,11 +96,11 @@ namespace TestOracle
 
             try
             {
-                var rp = sp.GetService<DBService>();
+                var rp = db;
                 using (var conn = rp.OpenConnection())
                 {
                     var trans = conn.BeginTransaction();
-                    Sql sql = new Sql(sqltxt, new Parameter("LAST_NAME", "Jin", ParameterDirection.InputOutput));
+                    Sql sql = new Sql(sqltxt, new Parameter { Name = "LAST_NAME", Value = "Jin", Direction = ParameterDirection.InputOutput });
                     trans.Execute(sql, false);
 
                     trans.Rollback();
@@ -112,7 +114,9 @@ namespace TestOracle
 
         static IEnumerable<Employee> QueryOracle(DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
-            string sql = "select * from employees";
+            //string sql = "select * from employees";
+
+            Sql sql = new Sql("select * from employees where employee_id < :p_id", new Parameter { Name = "p_id", Value = 110 });
             var ret = conn.Query<Employee>(sql, trans);
             Console.WriteLine(ret.Count() + " rows queried.");
             return ret;
@@ -158,8 +162,16 @@ namespace TestOracle
                 MANAGER_ID = 205,
                 DEPARTMENT_ID = 110
             };
-            var ret = conn.Insert(obj, trans);
+            var ret = conn.Insert(obj, trans: trans);
             Console.WriteLine(ret + " rows inserted");
+            return obj;
+        }
+
+        static Employee Update0(Employee obj, DBConnectionWrapper conn, DBTransactionWrapper trans = null)
+        {
+            obj.DEPARTMENT_ID = 60;
+            obj.HIRE_DATE = DateTime.Now.AddDays(-2);
+            conn.Update(obj, trans: trans);
             return obj;
         }
 
@@ -168,13 +180,15 @@ namespace TestOracle
             Employee obj = new Employee
             {
                 EMPLOYEE_ID = 207,
-                HIRE_DATE = DateTime.Now.AddMonths(-1)
+                DEPARTMENT_ID = 50,
+                HIRE_DATE = DateTime.Now.AddDays(-1)
             };
-            int ret = conn.Update(obj, trans, i => i.HIRE_DATE);
+            int ret = trans.Update(obj, new { obj.HIRE_DATE }, out var res);
+            //int ret = conn.Update(obj, new { obj.HIRE_DATE }, out var res, trans);
             Console.WriteLine(ret + " rows updated");
             if (ret > 0)
             {
-                Console.WriteLine("The first name of the updated record is " + obj.FIRST_NAME);
+                Console.WriteLine("The first name of the updated record is " + res.FIRST_NAME);
             }
             return obj;
         }

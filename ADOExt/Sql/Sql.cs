@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MagicEastern.ADOExt
 {
@@ -10,7 +9,7 @@ namespace MagicEastern.ADOExt
 
         public string Text { get; set; }
 
-        public IList<Parameter> Parameters { get; set; }
+        public HashSet<Parameter> Parameters { get; set; }
 
         public int CommandTimeout { get; set; }
 
@@ -20,7 +19,7 @@ namespace MagicEastern.ADOExt
             {
                 throw new ArgumentNullException("sql text is required!");
             }
-            Parameters = parameters.ToList();
+            Parameters = new HashSet<Parameter>(parameters);
             Text = cmdText;
             CommandTimeout = DefaultCommandTimeout;
         }

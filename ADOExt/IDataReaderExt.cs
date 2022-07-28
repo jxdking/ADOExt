@@ -1,26 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 
 namespace MagicEastern.ADOExt
 {
     public static class IDataReaderExt
     {
-        internal static void SetProperty<T>(this IDataRecord reader, T obj, IDBColumnMapping<T> mapping, Action<T, IDataRecord, int> setter, int ordinal)
-        {
-            try
-            {
-                setter(obj, reader, ordinal);
-            }
-            catch (Exception ex)
-            {
-                string colName = mapping.ColumnName;
-                throw new FormatException("Failed to Parse [" + typeof(T).Name + "." + colName + "] from DataReader!", ex);
-            }
-        }
-
         /// <summary>
         /// yield return the reader one record by one record. reader.Close() is called at the end of enumeration.
         /// </summary>
@@ -28,10 +13,10 @@ namespace MagicEastern.ADOExt
         /// <returns></returns>
         public static IEnumerable<IDataRecord> AsEnumerable(this IDataReader reader)
         {
-            return ToEnumerable(reader).AsSingleUse();
+            return _AsEnumerable(reader).AsSingleUse();
         }
 
-        private static IEnumerable<IDataRecord> ToEnumerable(IDataReader reader)
+        private static IEnumerable<IDataRecord> _AsEnumerable(IDataReader reader)
         {
             try
             {
@@ -46,42 +31,47 @@ namespace MagicEastern.ADOExt
             }
         }
 
-        public static IEnumerable<T> AsEnumerable<T>(this IDataReader reader, IDBObjectMappingFactory dbObjectMappingFactory) where T : new()
+        internal static IEnumerable<T> AsEnumerable<T>(this IDataReader reader, DBObjectMapping<T> objectMapping) where T : new()
         {
-            var objectMapping = dbObjectMappingFactory.Get<T>();
             var mapping = objectMapping.ColumnMappingList;
-            int[] ordinalAry = new int[mapping.Count];
-            var setterAry = new Action<T, IDataRecord, int>[mapping.Count];
+            Action<T, IDataRecord>[] setters = new Action<T, IDataRecord>[mapping.Count];
 
-            int i;
-            string cName = null;
+            int i = 0;
             try
             {
-                int ord;
                 for (i = 0; i < mapping.Count; i++)
                 {
-                    cName = mapping[i].ColumnName;
-                    ord = reader.GetOrdinal(cName);
-                    ordinalAry[i] = ord;
-                    setterAry[i] = mapping[i].GetPropSetterForRecord(reader.GetFieldType(ord));
+                    var colMapping = mapping[i];
+                    var cName = colMapping.ColumnName;
+                    var ordinal = reader.GetOrdinal(cName);
+                    var setter = colMapping.GetPropSetterForRecord(reader.GetFieldType(ordinal));
+                    setters[i] = (o, r) => { setter(o, r, ordinal); };
                 }
             }
             catch (IndexOutOfRangeException ex)
             {
-                throw new IndexOutOfRangeException("Unable to find specified column[" + cName + "] in DataReader", ex);
+                throw new IndexOutOfRangeException("Unable to find specified column[" + mapping[i].ColumnName + "] in DataReader", ex);
             }
 
             T obj;
-
-            return reader.AsEnumerable().Transform(rdr =>
+            try
             {
-                obj = new T();
-                for (i = 0; i < mapping.Count; i++)
+                return reader.AsEnumerable().Transform(rdr =>
                 {
-                    rdr.SetProperty(obj, mapping[i], setterAry[i], ordinalAry[i]);
-                }
-                return obj;
-            });
+                    obj = new T();
+                    for (i = 0; i < setters.Length; i++)
+                    {
+                        var setter = setters[i];
+                        setter(obj, rdr);
+                    }
+                    return obj;
+                });
+            }
+            catch (Exception ex)
+            {
+                var col = mapping[i];
+                throw new Exception($"Error when parsing Property[{typeof(T).FullName}.{col.ObjectProperty.Name}] from IDataReader!", ex);
+            }
         }
     }
 }

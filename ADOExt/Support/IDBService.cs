@@ -1,6 +1,4 @@
-﻿using System.Data;
-
-namespace MagicEastern.ADOExt
+﻿namespace MagicEastern.ADOExt
 {
     public interface IDBService
     {

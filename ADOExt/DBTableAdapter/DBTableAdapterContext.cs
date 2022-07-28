@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace MagicEastern.ADOExt
 {
@@ -40,7 +37,7 @@ namespace MagicEastern.ADOExt
             SetColumns = updatableCols.Select(i => i.ColumnName).ToList();
         }
 
-        public DBTableAdapterContext(DBConnectionWrapper currentConnection, DBTransactionWrapper currentTrans) 
+        public DBTableAdapterContext(DBConnectionWrapper currentConnection, DBTransactionWrapper currentTrans)
             : this(currentConnection.DBService.DBTableMappingFactory.Get<T>(currentConnection, currentTrans))
         {
             DBService = currentConnection.DBService;

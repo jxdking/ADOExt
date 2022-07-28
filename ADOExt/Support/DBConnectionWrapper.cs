@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
+﻿using System.Data;
 
 namespace MagicEastern.ADOExt
 {
@@ -82,10 +79,11 @@ namespace MagicEastern.ADOExt
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
-            
+
         }
 
-        ~DBConnectionWrapper() {
+        ~DBConnectionWrapper()
+        {
             Dispose(false);
         }
         #endregion

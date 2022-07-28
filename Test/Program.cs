@@ -29,12 +29,7 @@ namespace Test
         static void Main(string[] args)
         {
             var sc = new ServiceCollection();
-            sc.AddDBServiceManger(new DBServiceConfig[] {
-                new DBServiceConfig {
-                    Name = "mydb",
-                    ConfigServices = svrs => svrs.AddSqlServer(() => new SqlConnection(SqlConnString)) 
-                }
-            });
+            sc.AddDBServiceManger().AddDatabase("mydb", () => new SqlConnection(SqlConnString));
             var sp = sc.BuildServiceProvider();
             DBManager = sp.GetService<DBServiceManager>();
             TestSqlServer();
@@ -67,6 +62,7 @@ namespace Test
         static IEnumerable<SalesOrderHeader> Query(DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
             string sql = "SELECT [SalesOrderID],[RevisionNumber],[OrderDate],[DueDate],[ShipDate],[Status],[OnlineOrderFlag],[SalesOrderNumber],[PurchaseOrderNumber],[AccountNumber],[CustomerID],[SalesPersonID],[TerritoryID],[BillToAddressID],[ShipToAddressID],[ShipMethodID],[CreditCardID],[CreditCardApprovalCode],[CurrencyRateID],[SubTotal],[TaxAmt],[Freight],[TotalDue],[Comment],[rowguid],[ModifiedDate] FROM [Sales].[SalesOrderHeader]";
+            var ds = conn.Query(sql, trans);
             var ret = conn.Query<SalesOrderHeader>(sql, trans);
             var t = ret.Last();
             //t = ret.Take(2).Last();
@@ -119,7 +115,7 @@ namespace Test
                 Rowguid = Guid.NewGuid(),
                 ModifiedDate = DateTime.Now
             };
-            int nor = conn.Insert(order, trans);
+            int nor = conn.Insert(order, null, trans);
             var id = conn.GetSingleValue<int>("SELECT @@IDENTITY", trans);
             order.SalesOrderId = id;
             Console.WriteLine(nor + " record inserted.");
@@ -133,13 +129,13 @@ namespace Test
 
         static void Update(DBConnectionWrapper conn, SalesOrderHeader obj, DBTransactionWrapper trans = null)
         {
-            int nor = conn.Update(obj, trans);
+            int nor = conn.Update(obj, trans: trans);
             Console.WriteLine(nor + " line updated.");
             var obj2 = new SalesOrderHeader();
             obj2.SalesOrderId = obj.SalesOrderId;
             obj2.ModifiedDate = DateTime.Now;
             obj2.Status = 2;
-            nor = conn.Update(obj2, trans, i => i.ModifiedDate, i => i.Status);
+            nor = conn.Update(obj2, new { obj2.ModifiedDate, obj2.Status }, trans);
             Console.WriteLine(nor + " line updated (only update ModifiedDate and Status).");
         }
     }

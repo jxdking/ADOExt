@@ -1,28 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 
 namespace MagicEastern.ADOExt
 {
     public class DBTableAdapter<T> : DBTableAdapterContext<T>, IDBTableAdapter<T> where T : new()
     {
-        private readonly IDBTableAdapterCommand<T> InsertCommand = null;
-        private readonly IDBTableAdapterCommand<T> UpdateCommand = null;
-        private readonly IDBTableAdapterCommand<T> DeleteCommand = null;
-        private readonly IDBTableAdapterCommand<T> LoadCommand = null;
-        private readonly ICommandBuilder<T> CommandBuilder;
+        private readonly SqlInsertTemplateBase<T> InsertCommand = null;
+        private readonly SqlUpdateTemplateBase<T> UpdateCommand = null;
+        private readonly SqlDeleteTemplateBase<T> DeleteCommand = null;
+        private readonly SqlLoadTemplateBase<T> LoadCommand = null;
 
-        public DBTableAdapter(ICommandBuilder<T> commandBuilder, DBConnectionWrapper currentConnection, DBTransactionWrapper currentTrans) 
+        public DBTableAdapter(DBConnectionWrapper currentConnection, DBTransactionWrapper currentTrans)
             : base(currentConnection, currentTrans)
         {
-            CommandBuilder = commandBuilder;
-            InsertCommand = commandBuilder.CreateInsertCommand(this);
-            UpdateCommand = commandBuilder.CreateUpdateCommand(this);
-            DeleteCommand = commandBuilder.CreateDeleteCommand(this);
-            LoadCommand = commandBuilder.CreateLoadCommand(this);
+            if (PkColumns.Count > 0)
+            {
+                UpdateCommand = DBService.SqlResolver.GetUpdateTemplate(this);
+                DeleteCommand = DBService.SqlResolver.GetDeleteTemplate(this);
+                LoadCommand = DBService.SqlResolver.GetLoadTemplate(this);
+            }
+            InsertCommand = DBService.SqlResolver.GetInsertTemplate(this);
         }
 
         public virtual void ApplyMaxLength(T entity)
@@ -41,82 +40,54 @@ namespace MagicEastern.ADOExt
             }
         }
 
-        public virtual int Delete(T obj, DBConnectionWrapper conn, DBTransactionWrapper trans = null)
+        public virtual int Delete(T obj, DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
             if (DeleteCommand == null)
             {
                 throw new NotSupportedException("Delete is not support for this [" + typeof(T).FullName + "], make sure you have primary key defined in Entity Metadata for this type.");
             }
-
-            return DeleteCommand.Execute(obj, conn, out _, trans);
+            var sql = DeleteCommand.Generate(obj);
+            return conn.Execute(sql, false, trans);
         }
 
-        public virtual T Load(T obj, DBConnectionWrapper conn, DBTransactionWrapper trans = null)
+        public virtual T Load(T obj, DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
             if (LoadCommand == null)
             {
                 throw new NotSupportedException("Load is not support for this [" + typeof(T).FullName + "], make sure you have primary key defined in Entity Metadata for this type.");
             }
-            LoadCommand.Execute(obj, conn, out T ret, trans);
-            return ret;
+            var sql = LoadCommand.Generate(obj);
+            return conn.Query<T>(sql, trans).FirstOrDefault();
         }
 
-        public virtual int Insert(T obj, DBConnectionWrapper conn, out T result, DBTransactionWrapper trans = null)
+        private IEnumerable<IDBColumnMapping<T>> GetSetColumns(IEnumerable<IDBColumnMapping<T>> all, object properties, string operation)
         {
-            return InsertCommand.Execute(obj, conn, out result, trans);
-        }
-
-        private IDBTableAdapterCommand<T> CreateUpdateCommand(Expression<Func<T, object>>[] targetProperties)
-        {
-            var hash = new HashSet<PropertyInfo>();
-
-            foreach (var i in targetProperties) {
-                Expression expr = i.Body;
-                if (expr.NodeType == ExpressionType.Convert)
-                {
-                    expr = ((UnaryExpression)expr).Operand;
-                }
-                if (expr.NodeType != ExpressionType.MemberAccess)
-                {
-                    throw new ArgumentException("Only MemberExpression can be parsed!");
-                }
-                var prop = ((MemberExpression)expr).Member as PropertyInfo;
-                if (prop == null)
-                {
-                    throw new ArgumentException("[" + ((MemberExpression)expr).Member.Name + "] is not a Property of " + typeof(T).FullName);
-                }
-                if (PkColumnsInfo.FirstOrDefault(j => j.ObjectProperty == prop) != null)
-                {
-                    throw new ArgumentException("Cannot update the primary key column [" + ((MemberExpression)expr).Member.Name + "]");
-                }
-                hash.Add(prop);
-            }
-           
-            var setCols = SetColumnsInfo.Where(i => hash.Contains(i.ObjectProperty)).ToList();
-            if (setCols.Count == 0)
+            IEnumerable<IDBColumnMapping<T>> setCols = all;
+            if (properties != null)
             {
-                throw new ArgumentException("No column will be updated!");
+                var hash = new HashSet<string>(properties.GetType().GetProperties().Select(i => i.Name));
+                setCols = InsertColumnsInfo.Where(i => hash.Remove(i.ObjectProperty.Name)).ToList();
+                if (hash.Count > 0)
+                {
+                    throw new ArgumentOutOfRangeException($"Properties[{string.Join(",", hash)}] are not valid for {operation} operation" +
+                        $" or are not defined in type [{typeof(T).FullName}].");
+                }
             }
-
-            var updateContext = new DBTableAdapterContext<T>(this.Mapping, this.DBService
-                , (List<IDBColumnMapping<T>>)AllColumnsInfo, (List<IDBColumnMapping<T>>)PkColumnsInfo, (List<IDBColumnMapping<T>>)InsertColumnsInfo, setCols);
-            IDBTableAdapterCommand<T> cmd = CommandBuilder.CreateUpdateCommand(updateContext);
-            return cmd;
+            return setCols;
         }
 
-        public virtual int Update(T obj, DBConnectionWrapper conn, out T result, DBTransactionWrapper trans = null, params Expression<Func<T, object>>[] targetProperties)
+        public virtual int Insert(T obj, object properties, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        {
+            return InsertCommand.Execute(obj, GetSetColumns(InsertColumnsInfo, properties, "Insert()"), out result, conn, trans);
+        }
+
+        public virtual int Update(T obj, object properties, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
             if (UpdateCommand == null)
             {
                 throw new NotSupportedException("Update is not support for this [" + typeof(T).FullName + "], make sure you have primary key defined in Entity Metadata for this type.");
             }
-
-            IDBTableAdapterCommand<T> cmd = UpdateCommand;
-            if (targetProperties.Length > 0)
-            {
-                cmd = CreateUpdateCommand(targetProperties);
-            }
-            return cmd.Execute(obj, conn, out result, trans);
+            return UpdateCommand.Execute(obj, GetSetColumns(SetColumnsInfo, properties, "Update()"), out result, conn, trans);
         }
 
     }

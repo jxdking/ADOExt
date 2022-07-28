@@ -17,7 +17,7 @@
             Required = mapping.Required;
             ObjectProperty = mapping.ObjectProperty;
             PropertyGetter = mapping.PropertyGetter;
-            
+
             ColumnName = metadata.COLUMN_NAME;
             TableName = metadata.TABLE_NAME;
             DataType = metadata.DATA_TYPE;
@@ -28,7 +28,7 @@
             PK = metadata.PK == "Y";
 
             // recreate setter as the Required condition may be changed.
-            PropertySetter = CreateSetter(ObjectProperty, !Required);
+            PropertySetter = CreatePropertyObjectSetter(ObjectProperty);
         }
     }
 }

@@ -1,10 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data.SqlClient;
 
 namespace MagicEastern.ADOExt.SqlServer
 {
@@ -18,10 +15,21 @@ namespace MagicEastern.ADOExt.SqlServer
 
             services.AddTransient<IDBClassResolver>(_ => new DBClassResolver(createConnection));
             services.AddTransient<ISqlResolver, SqlResolver>();
-            services.AddTransient<ICommandBuilderFactory, CommandBuilderFactory>();
             services.AddSingleton<IDBService, DBService>();
 
             return services;
+        }
+
+        public static DBServiceManagerBuilder AddDatabase(this DBServiceManagerBuilder builder, string name, Func<SqlConnection> createConnection)
+        {
+            if (name == null) { throw new ArgumentNullException("[name] is required."); }
+            if (createConnection == null) { throw new ArgumentNullException("Connection constructor [createConnection] is required."); }
+
+            var sc = new ServiceCollection();
+            sc.AddSqlServer(createConnection);
+            var sp = sc.BuildServiceProvider();
+            builder.AddConfig(name, sp);
+            return builder;
         }
     }
 }

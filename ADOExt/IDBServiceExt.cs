@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
+﻿using System.Data;
 
 namespace MagicEastern.ADOExt
 {
@@ -17,7 +14,7 @@ namespace MagicEastern.ADOExt
         public static DBTransactionWrapper BeginTransaction(this IDBService dbService)
         {
             var conn = OpenConnection(dbService);
-            return conn.BeginTransaction();            
+            return conn.BeginTransaction();
         }
 
         public static DBTransactionWrapper BeginTransaction(this IDBService dbService, IsolationLevel il)

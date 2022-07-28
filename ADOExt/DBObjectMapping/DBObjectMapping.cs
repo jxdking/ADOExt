@@ -9,14 +9,14 @@ namespace MagicEastern.ADOExt
     public class DBObjectMapping<T>
     {
         public IReadOnlyList<IDBColumnMapping<T>> ColumnMappingList { get; private set; }
-        
+
         public DBObjectMapping()
         {
             var columnMappingList = new List<IDBColumnMapping<T>>();
 
             var type = typeof(T);
             var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-            
+
             foreach (var p in properties)
             {
                 if (p.CanWrite && p.CanRead)

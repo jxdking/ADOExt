@@ -34,12 +34,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MagicEastern.ADOExt, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MagicEastern.ADOExt.3.0.0\lib\netstandard2.0\MagicEastern.ADOExt.dll</HintPath>
-    </Reference>
-    <Reference Include="MagicEastern.ADOExt.SqlServer, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MagicEastern.ADOExt.SqlServer.3.0.0\lib\netstandard2.0\MagicEastern.ADOExt.SqlServer.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.6.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
@@ -102,6 +96,16 @@
     </None>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ADOExt.SqlServer\ADOExt.SqlServer.csproj">
+      <Project>{1df999a6-b161-4620-901a-5d3a08dec5dc}</Project>
+      <Name>ADOExt.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ADOExt\ADOExt.csproj">
+      <Project>{59b6fdf0-de69-480f-84fe-831b3e505369}</Project>
+      <Name>ADOExt</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

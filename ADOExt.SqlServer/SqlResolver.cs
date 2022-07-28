@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 
 namespace MagicEastern.ADOExt.SqlServer
 {
     public class SqlResolver : ISqlResolver
     {
-        public Sql ColumnMetaDataFromTable(string table, string schema = null)
+        public Sql ColumnMetaDataFromTable(string table, string schema)
         {
             if (string.IsNullOrEmpty(table))
             {
@@ -43,17 +40,15 @@ namespace MagicEastern.ADOExt.SqlServer
             if (!string.IsNullOrWhiteSpace(schema))
             {
                 sqlTxt = string.Format(sqlTxt, "and upper(TABLE_SCHEMA) = @tableschema", "AND upper(Col.TABLE_SCHEMA) = @tableschema");
+                return new Sql(sqlTxt, new Parameter { Name = "tablename", Value = table.ToUpper() }, new Parameter { Name = "tableschema", Value = schema?.ToUpper() });
             }
-            else
-            {
-                sqlTxt = string.Format(sqlTxt, "", "");
-            }
-            Sql sql = new Sql(sqlTxt, new Parameter("tablename", table.ToUpper()), new Parameter("tableschema", schema?.ToUpper()));
 
-            return sql;
+            sqlTxt = string.Format(sqlTxt, "", "");
+            return new Sql(sqlTxt, new Parameter { Name = "tablename", Value = table.ToUpper() });
         }
 
-        private string GetTableName(string table, string schema)
+
+        internal string GetTableName(string table, string schema)
         {
             string tablename = "[" + table + "]";
             if (!string.IsNullOrWhiteSpace(schema))
@@ -63,6 +58,7 @@ namespace MagicEastern.ADOExt.SqlServer
             return tablename;
         }
 
+        /*
         public string InsertTemplate<T>(DBTableAdapterContext<T> context)
         {
             var tablename = GetTableName(context.Mapping.TableName, context.Mapping.Schema);
@@ -80,7 +76,7 @@ namespace MagicEastern.ADOExt.SqlServer
         public string UpdateTemplate<T>(DBTableAdapterContext<T> context)
         {
             var tablename = GetTableName(context.Mapping.TableName, context.Mapping.Schema);
-            string sql = "update " + tablename + " set " + string.Join(",", context.SetColumns.Select(i => "[" + i + "]=@" + i)) + " where " + string.Join(" and ", context.PkColumns.Select(i => "[" + i + "]=@" + i));
+            string sql = "update " + tablename + " set {0} where " + string.Join(" and ", context.PkColumns.Select(i => "[" + i + "]=@" + i));
             return sql;
         }
 
@@ -89,6 +85,27 @@ namespace MagicEastern.ADOExt.SqlServer
             var tablename = GetTableName(context.Mapping.TableName, context.Mapping.Schema);
             string sql = "select [" + string.Join("],[", context.AllColumns) + "] from " + tablename + " where " + string.Join(" and ", context.PkColumns.Select(i => "[" + i + "]=@" + i));
             return sql;
+        }
+        */
+
+        public SqlInsertTemplateBase<T> GetInsertTemplate<T>(DBTableAdapterContext<T> context) where T : new()
+        {
+            return new SqlInsertTemplate<T>(context, this);
+        }
+
+        public SqlUpdateTemplateBase<T> GetUpdateTemplate<T>(DBTableAdapterContext<T> context) where T : new()
+        {
+            return new SqlUpdateTemplate<T>(context, this);
+        }
+
+        public SqlLoadTemplateBase<T> GetLoadTemplate<T>(DBTableAdapterContext<T> context) where T : new()
+        {
+            return new SqlLoadTemplate<T>(context, this);
+        }
+
+        public SqlDeleteTemplateBase<T> GetDeleteTemplate<T>(DBTableAdapterContext<T> context) where T : new()
+        {
+            return new SqlDeleteTemplate<T>(context, this);
         }
     }
 }

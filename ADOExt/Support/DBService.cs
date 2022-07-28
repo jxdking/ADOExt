@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Specialized;
-using System.Data;
-using System.Threading;
-
-namespace MagicEastern.ADOExt
+﻿namespace MagicEastern.ADOExt
 {
     public class DBService : IDBService
     {

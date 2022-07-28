@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MagicEastern.ADOExt
 {
@@ -31,8 +30,10 @@ namespace MagicEastern.ADOExt
         }
     }
 
-    public static class SingleUseEnumerableExt {
-        public static IEnumerable<T> AsSingleUse<T>(this IEnumerable<T> source) {
+    public static class SingleUseEnumerableExt
+    {
+        public static IEnumerable<T> AsSingleUse<T>(this IEnumerable<T> source)
+        {
             return new SingleUseEnumerable<T>(source);
         }
     }

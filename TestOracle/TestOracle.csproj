@@ -36,12 +36,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ADOExt.Oracle, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MagicEastern.ADOExt.Oracle.3.0.0\lib\net472\ADOExt.Oracle.dll</HintPath>
-    </Reference>
-    <Reference Include="MagicEastern.ADOExt, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MagicEastern.ADOExt.3.0.0\lib\netstandard2.0\MagicEastern.ADOExt.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.6.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
@@ -108,6 +102,16 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ADOExt.Oracle\ADOExt.Oracle.csproj">
+      <Project>{1a057e73-10bd-49da-8d2f-f9694d73b941}</Project>
+      <Name>ADOExt.Oracle</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ADOExt\ADOExt.csproj">
+      <Project>{59b6fdf0-de69-480f-84fe-831b3e505369}</Project>
+      <Name>ADOExt</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Text.Json.6.0.5\build\System.Text.Json.targets" Condition="Exists('..\packages\System.Text.Json.6.0.5\build\System.Text.Json.targets')" />
