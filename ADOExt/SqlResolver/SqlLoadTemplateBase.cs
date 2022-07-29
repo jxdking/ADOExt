@@ -28,6 +28,7 @@ namespace MagicEastern.ADOExt
                 Value = i.PropertyGetter(obj),
                 ObjectType = i.ObjectProperty.PropertyType
             }));
+            sql.CacheDataReaderSchema = true;
             return sql;
         }
     }

@@ -9,10 +9,9 @@ namespace MagicEastern.ADOExt
         public static int DefaultCommandTimeout = 30;
 
         public string Text { get; set; }
-
         public HashSet<Parameter> Parameters { get; set; }
-
         public int CommandTimeout { get; set; }
+        public bool CacheDataReaderSchema { get; set; } = false;
 
         protected virtual void Init(string cmdText, IEnumerable<Parameter> parameters)
         {

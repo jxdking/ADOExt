@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace MagicEastern.ADOExt.Oracle
 {
@@ -41,7 +42,7 @@ namespace MagicEastern.ADOExt.Oracle
                 cols = setCols.ToList();
             }
             var sqltxt = cols.Count == ColCount ? TemplateAllCol
-                : string.Format(Template, string.Join(",", cols.Select(i => i + "=:" + i)));
+                : string.Format(Template, string.Join(",", cols.Select(i => string.Join("", new string[] { i.ColumnName, "=:", i.ColumnName }))));
             return SqlTemplateUtil.GenerateSql(obj, sqltxt, cols.Concat(PkCols), ReturnCols);
         }
     }

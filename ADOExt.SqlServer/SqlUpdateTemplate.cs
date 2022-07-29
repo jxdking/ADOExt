@@ -26,7 +26,7 @@ namespace MagicEastern.ADOExt.SqlServer
             {
                 cols = setCols.ToList();
             }
-            var sqltxt = string.Format(Template, string.Join(",", cols.Select(i => "[" + i + "]=@" + i)));
+            var sqltxt = string.Format(Template, string.Join(",", cols.Select(i => string.Join("", new string[] { "[", i.ColumnName, "]=@", i.ColumnName }))));
             return new Sql(sqltxt, cols.Concat(PkCols).Select(i => new Parameter
             {
                 Name = i.ColumnName,

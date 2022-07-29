@@ -31,29 +31,10 @@ namespace MagicEastern.ADOExt
             }
         }
 
-        internal static IEnumerable<T> AsEnumerable<T>(this IDataReader reader, DBObjectMapping<T> objectMapping) where T : new()
+        internal static IEnumerable<T> AsEnumerable<T>(this IDataReader reader, Action<T, IDataRecord>[] setters) where T : new()
         {
-            var mapping = objectMapping.ColumnMappingList;
-            Action<T, IDataRecord>[] setters = new Action<T, IDataRecord>[mapping.Count];
-
-            int i = 0;
-            try
-            {
-                for (i = 0; i < mapping.Count; i++)
-                {
-                    var colMapping = mapping[i];
-                    var cName = colMapping.ColumnName;
-                    var ordinal = reader.GetOrdinal(cName);
-                    var setter = colMapping.GetPropSetterForRecord(reader.GetFieldType(ordinal));
-                    setters[i] = (o, r) => { setter(o, r, ordinal); };
-                }
-            }
-            catch (IndexOutOfRangeException ex)
-            {
-                throw new IndexOutOfRangeException("Unable to find specified column[" + mapping[i].ColumnName + "] in DataReader", ex);
-            }
-
             T obj;
+            int i = 0;
             try
             {
                 return reader.AsEnumerable().Transform(rdr =>
@@ -69,8 +50,7 @@ namespace MagicEastern.ADOExt
             }
             catch (Exception ex)
             {
-                var col = mapping[i];
-                throw new Exception($"Error when parsing Property[{typeof(T).FullName}.{col.ObjectProperty.Name}] from IDataReader!", ex);
+                throw new Exception($"Error when parsing {i}(th) Property on Type[{typeof(T).FullName}] from IDataReader!", ex);
             }
         }
     }

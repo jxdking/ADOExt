@@ -39,8 +39,11 @@ namespace MagicEastern.ADOExt
                 throw new SqlCmdException("Error occurred when running SQL!", sql, ex);
             }
 
+            var setters = sql.CacheDataReaderSchema 
+                ? objectMapping.GetDataReaderSetters(sql.Text, reader) : objectMapping.GetDataReaderSetters(reader);
+
             // reader will be closed inside reader.AsEnumerable();
-            return reader.AsEnumerable<T>(objectMapping);
+            return reader.AsEnumerable(setters);
         }
 
         public static T GetSingleValue<T>(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Data;
 
 //using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,6 +12,37 @@ namespace MagicEastern.ADOExt
     public class DBObjectMapping<T>
     {
         public IReadOnlyList<IDBColumnMapping<T>> ColumnMappingList { get; private set; }
+
+        private readonly ConcurrentDictionary<string, Action<T, IDataRecord>[]> DataReaderSetterCache = new ConcurrentDictionary<string, Action<T, IDataRecord>[]>();
+
+        public Action<T, IDataRecord>[] GetDataReaderSetters(IDataRecord reader) {
+            Action<T, IDataRecord>[] setters = new Action<T, IDataRecord>[ColumnMappingList.Count];
+
+            int i = 0;
+            try
+            {
+                for (i = 0; i < ColumnMappingList.Count; i++)
+                {
+                    var colMapping = ColumnMappingList[i];
+                    var cName = colMapping.ColumnName;
+                    var ordinal = reader.GetOrdinal(cName);
+                    var setter = colMapping.GetPropSetterForRecord(reader.GetFieldType(ordinal));
+                    setters[i] = (o, r) => { setter(o, r, ordinal); };
+                }
+            }
+            catch (IndexOutOfRangeException ex)
+            {
+                throw new IndexOutOfRangeException("Unable to find specified column[" + ColumnMappingList[i].ColumnName + "] in DataReader", ex);
+            }
+
+            return setters;
+        }
+
+        public Action<T, IDataRecord>[] GetDataReaderSetters(string sqltxt, IDataRecord reader) {
+            return DataReaderSetterCache.GetOrAdd(sqltxt, (_) => {
+                return GetDataReaderSetters(reader);
+            });
+        }
 
         public DBObjectMapping()
         {
