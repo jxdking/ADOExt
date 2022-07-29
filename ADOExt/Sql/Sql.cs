@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MagicEastern.ADOExt
 {
@@ -32,6 +33,10 @@ namespace MagicEastern.ADOExt
         public Sql(string cmdText, params Parameter[] parameters)
         {
             Init(cmdText, parameters);
+        }
+
+        public Sql(string cmdText, object parameters) {
+            Init(cmdText, parameters.GetType().GetProperties().Select(i => new Parameter(i.Name, i.GetValue(parameters))));
         }
 
         public override string ToString()

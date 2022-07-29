@@ -68,6 +68,17 @@ namespace MagicEastern.ADOExt
             }
         }
 
+        public Parameter()
+        {
+
+        }
+
+        public Parameter(string name, object value)
+        {
+            Name = name;
+            Value = value;
+        }
+
         public override string ToString()
         {
             return new KeyValuePair<string, object>(Name, Value).ToString();

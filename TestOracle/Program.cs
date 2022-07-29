@@ -116,7 +116,7 @@ namespace TestOracle
         {
             //string sql = "select * from employees";
 
-            Sql sql = new Sql("select * from employees where employee_id < :p_id", new Parameter { Name = "p_id", Value = 110 });
+            Sql sql = new Sql("select * from employees where employee_id < :p_id", new { p_id = 110 });
             var ret = conn.Query<Employee>(sql, trans);
             Console.WriteLine(ret.Count() + " rows queried.");
             return ret;
