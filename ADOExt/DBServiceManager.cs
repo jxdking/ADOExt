@@ -6,21 +6,21 @@ namespace MagicEastern.ADOExt
 {
     public class DBServiceManager : IDBService
     {
-        private readonly Dictionary<string, IServiceProvider> _ServiceProvider;
+        private readonly Dictionary<string, IDBService> _DBServices = new Dictionary<string, IDBService>();
         private IDBService Default = null;
 
         private void AddConfig(object sender, ConfigAddedEventArgs args)
         {
-            _ServiceProvider[args.ConfigName] = args.ServiceProvider;
+            var svc = args.ServiceProvider.GetService<IDBService>();
+            _DBServices[args.ConfigName] = svc;
             if (Default == null)
             {
-                Default = args.ServiceProvider.GetService<IDBService>();
+                Default = svc;
             }
         }
 
         public DBServiceManager(DBServiceManagerBuilder builder)
         {
-            _ServiceProvider = new Dictionary<string, IServiceProvider>();
             builder.ConfigAdded += AddConfig;
         }
 
@@ -29,22 +29,24 @@ namespace MagicEastern.ADOExt
 
         public ISqlResolver SqlResolver => Default.SqlResolver;
 
-        public IDBObjectMappingFactory DBObjectMappingFactory => Default.DBObjectMappingFactory;
+        public IServiceProvider DBServiceProvider => Default.DBServiceProvider;
 
-        public IDBTableMappingFactory DBTableMappingFactory => Default.DBTableMappingFactory;
+        public DBConnectionWrapper OpenConnection() => Default.OpenConnection();
 
-        public IDBTableAdapterFactory DBTableAdapterFactory => Default.DBTableAdapterFactory;
+        public IDBObjectMapping<T> GetDBObjectMapping<T>() => Default.GetDBObjectMapping<T>();
+
+        public IDBTableAdapter<T> GetDBTableAdapter<T>() where T : new() => Default.GetDBTableAdapter<T>();
         #endregion
 
         public IDBService this[string schema]
         {
             get
             {
-                if (!_ServiceProvider.TryGetValue(schema, out IServiceProvider sp))
+                if (!_DBServices.TryGetValue(schema, out IDBService svr))
                 {
                     throw new Exception($"DBService for [name:{schema}] is not registered.");
                 }
-                return sp.GetService<IDBService>();
+                return svr;
             }
         }
     }

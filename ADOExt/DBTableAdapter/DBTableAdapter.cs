@@ -12,16 +12,16 @@ namespace MagicEastern.ADOExt
         private readonly SqlDeleteTemplateBase<T> DeleteCommand = null;
         private readonly SqlLoadTemplateBase<T> LoadCommand = null;
 
-        public DBTableAdapter(DBConnectionWrapper currentConnection, DBTransactionWrapper currentTrans)
-            : base(currentConnection, currentTrans)
+        public DBTableAdapter(IDBTableMapping<T> mapping, ISqlResolver sqlResolver)
+            : base(mapping)
         {
             if (PkColumns.Count > 0)
             {
-                UpdateCommand = DBService.SqlResolver.GetUpdateTemplate(this);
-                DeleteCommand = DBService.SqlResolver.GetDeleteTemplate(this);
-                LoadCommand = DBService.SqlResolver.GetLoadTemplate(this);
+                UpdateCommand = sqlResolver.GetUpdateTemplate(this);
+                DeleteCommand = sqlResolver.GetDeleteTemplate(this);
+                LoadCommand = sqlResolver.GetLoadTemplate(this);
             }
-            InsertCommand = DBService.SqlResolver.GetInsertTemplate(this);
+            InsertCommand = sqlResolver.GetInsertTemplate(this);
         }
 
         public virtual void ApplyMaxLength(T entity)

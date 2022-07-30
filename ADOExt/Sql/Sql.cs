@@ -34,7 +34,8 @@ namespace MagicEastern.ADOExt
             Init(cmdText, parameters);
         }
 
-        public Sql(string cmdText, object parameters) {
+        public Sql(string cmdText, object parameters)
+        {
             Init(cmdText, parameters.GetType().GetProperties().Select(i => new Parameter(i.Name, i.GetValue(parameters))));
         }
 

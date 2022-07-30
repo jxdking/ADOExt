@@ -7,13 +7,6 @@ namespace MagicEastern.ADOExt.Oracle
 {
     public class DBClassResolver : IDBClassResolver
     {
-        private readonly Func<IDbConnection> _CreateConnection;
-
-        public DBClassResolver(Func<IDbConnection> createConnection)
-        {
-            _CreateConnection = createConnection;
-        }
-
         public IDbCommand CreateCommand(Sql sql, DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
             OracleCommand command = new OracleCommand(sql.Text, (OracleConnection)conn.Connection);
@@ -59,11 +52,6 @@ namespace MagicEastern.ADOExt.Oracle
         public DBErrorType GetDBErrorType(DbException ex)
         {
             return ((OracleException)ex).GetDBErrorType();
-        }
-
-        public IDbConnection CreateConnection()
-        {
-            return _CreateConnection();
         }
 
         public IDbDataAdapter CreateDataAdapter(IDbCommand command)

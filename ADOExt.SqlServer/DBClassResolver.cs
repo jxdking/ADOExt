@@ -7,13 +7,6 @@ namespace MagicEastern.ADOExt.SqlServer
 {
     public class DBClassResolver : IDBClassResolver
     {
-        private readonly Func<IDbConnection> _CreateConnection;
-
-        public DBClassResolver(Func<IDbConnection> createConnection)
-        {
-            _CreateConnection = createConnection;
-        }
-
         public IDbCommand CreateCommand(Sql sql, DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
             SqlCommand command = new SqlCommand(sql.Text, (SqlConnection)conn.Connection);
@@ -55,11 +48,6 @@ namespace MagicEastern.ADOExt.SqlServer
                 p.Size = short.MaxValue;
             }
             return p;
-        }
-
-        public IDbConnection CreateConnection()
-        {
-            return _CreateConnection();
         }
 
         public IDbDataAdapter CreateDataAdapter(IDbCommand command)

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Data;
-using System.Data.SqlClient;
 
 namespace MagicEastern.ADOExt.SqlServer
 {
@@ -9,18 +8,28 @@ namespace MagicEastern.ADOExt.SqlServer
     {
         public static IServiceCollection AddSqlServer(this IServiceCollection services, Func<IDbConnection> createConnection)
         {
-            services.AddSingleton<IDBObjectMappingFactory, DBObjectMappingFactory>();
-            services.AddTransient<IDBTableMappingFactory, DBTableMappingFactory>();
-            services.AddTransient<IDBTableAdapterFactory, DBTableAdapterFactory>();
+            services.AddSingleton(typeof(IDBObjectMapping<>), typeof(DBObjectMapping<>));
+            services.AddSingleton(typeof(IDBTableMapping<>), typeof(DBTableMapping<>));
+            services.AddSingleton(typeof(IDBTableAdapter<>), typeof(DBTableAdapter<>));
 
-            services.AddTransient<IDBClassResolver>(_ => new DBClassResolver(createConnection));
-            services.AddTransient<ISqlResolver, SqlResolver>();
+            services.AddSingleton<IDBClassResolver, DBClassResolver>();
+            services.AddSingleton<ISqlResolver, SqlResolver>();
+
+            services.AddSingleton<ConnectionFactory>((sp) =>
+            {
+                return () =>
+                {
+                    var conn = createConnection();
+                    conn.Open();
+                    return new DBConnectionWrapper(conn, sp.GetService<IDBService>());
+                };
+            });
             services.AddSingleton<IDBService, DBService>();
 
             return services;
         }
 
-        public static DBServiceManagerBuilder AddDatabase(this DBServiceManagerBuilder builder, string name, Func<SqlConnection> createConnection)
+        public static DBServiceManagerBuilder AddDatabase(this DBServiceManagerBuilder builder, string name, Func<IDbConnection> createConnection)
         {
             if (name == null) { throw new ArgumentNullException("[name] is required."); }
             if (createConnection == null) { throw new ArgumentNullException("Connection constructor [createConnection] is required."); }

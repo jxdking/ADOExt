@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace MagicEastern.ADOExt
 {
@@ -14,36 +13,9 @@ namespace MagicEastern.ADOExt
         public readonly IReadOnlyList<string> SetColumns;
         public readonly IReadOnlyList<IDBColumnMapping<T>> SetColumnsInfo;
 
-        public DBTableMapping<T> Mapping = null;
-        public IDBService DBService = null;
+        public IDBTableMapping<T> Mapping = null;
 
-        public DBTableAdapterContext(
-            DBTableMapping<T> mapping,
-            IDBService dbService,
-            List<IDBColumnMapping<T>> allCols,
-            List<IDBColumnMapping<T>> pkCols,
-            List<IDBColumnMapping<T>> insertableCols,
-            List<IDBColumnMapping<T>> updatableCols)
-        {
-            Mapping = mapping;
-            DBService = dbService;
-            AllColumnsInfo = allCols;
-            PkColumnsInfo = pkCols;
-            InsertColumnsInfo = insertableCols;
-            SetColumnsInfo = updatableCols;
-            AllColumns = allCols.Select(i => i.ColumnName).ToList();
-            PkColumns = pkCols.Select(i => i.ColumnName).ToList();
-            InsertColumns = insertableCols.Select(i => i.ColumnName).ToList();
-            SetColumns = updatableCols.Select(i => i.ColumnName).ToList();
-        }
-
-        public DBTableAdapterContext(DBConnectionWrapper currentConnection, DBTransactionWrapper currentTrans)
-            : this(currentConnection.DBService.DBTableMappingFactory.Get<T>(currentConnection, currentTrans))
-        {
-            DBService = currentConnection.DBService;
-        }
-
-        private DBTableAdapterContext(DBTableMapping<T> mapping)
+        public DBTableAdapterContext(IDBTableMapping<T> mapping)
         {
             Mapping = mapping;
 

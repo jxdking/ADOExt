@@ -9,13 +9,14 @@ using System.Reflection;
 
 namespace MagicEastern.ADOExt
 {
-    public class DBObjectMapping<T>
+    public class DBObjectMapping<T> : IDBObjectMapping<T>
     {
         public IReadOnlyList<IDBColumnMapping<T>> ColumnMappingList { get; private set; }
 
         private readonly ConcurrentDictionary<string, Action<T, IDataRecord>[]> DataReaderSetterCache = new ConcurrentDictionary<string, Action<T, IDataRecord>[]>();
 
-        public Action<T, IDataRecord>[] GetDataReaderSetters(IDataRecord reader) {
+        public Action<T, IDataRecord>[] GetDataReaderSetters(IDataRecord reader)
+        {
             Action<T, IDataRecord>[] setters = new Action<T, IDataRecord>[ColumnMappingList.Count];
 
             int i = 0;
@@ -38,8 +39,10 @@ namespace MagicEastern.ADOExt
             return setters;
         }
 
-        public Action<T, IDataRecord>[] GetDataReaderSetters(string sqltxt, IDataRecord reader) {
-            return DataReaderSetterCache.GetOrAdd(sqltxt, (_) => {
+        public Action<T, IDataRecord>[] GetDataReaderSetters(string sqltxt, IDataRecord reader)
+        {
+            return DataReaderSetterCache.GetOrAdd(sqltxt, (_) =>
+            {
                 return GetDataReaderSetters(reader);
             });
         }

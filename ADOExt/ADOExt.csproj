@@ -12,7 +12,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Kevin Jin</Authors>
     <Company />
-    <Version>3.6.0</Version>
+    <Version>3.7.0</Version>
     <Description>A simple object mapping library. A simple extenstion for IDbConnection and IDbTransaction.</Description>
     <PackageTags>ORM Database ADO.NET Extension</PackageTags>
     <AssemblyName>MagicEastern.ADOExt</AssemblyName>
@@ -31,6 +31,8 @@
 
   <ItemGroup>
     <Compile Remove="DBObjectMapping\DBColumnMapping - Copy.cs" />
+    <Compile Remove="DBObjectMapping\DBObjectMappingFactory.cs" />
+    <Compile Remove="DBObjectMapping\IDBObjectMappingFactory.cs" />
     <Compile Remove="Sql\Parameter - Copy.cs" />
     <Compile Remove="Support\DataBaseType.cs" />
     <Compile Remove="Support\IDBCommandResolver.cs" />

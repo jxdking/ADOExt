@@ -9,10 +9,11 @@ namespace MagicEastern.ADOExt
     {
         public static IDbCommand CreateCommand(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)
         {
-            if (trans != null && trans.Transaction == null) {
+            if (trans != null && trans.Transaction == null)
+            {
                 throw new InvalidOperationException("The transaction has been committed or rollbacked. No farther operation is allowed.");
             }
-            return  conn.DBService.DBClassResolver.CreateCommand(sql, conn, trans);
+            return conn.DBService.DBClassResolver.CreateCommand(sql, conn, trans);
         }
 
         public static DataTable Query(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)
@@ -26,7 +27,7 @@ namespace MagicEastern.ADOExt
 
         public static IEnumerable<T> Query<T>(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null) where T : new()
         {
-            var objectMapping = conn.DBService.DBObjectMappingFactory.Get<T>();
+            var objectMapping = conn.DBService.GetDBObjectMapping<T>();
 
             IDbCommand command = conn.CreateCommand(sql, trans);
             IDataReader reader;
@@ -39,7 +40,7 @@ namespace MagicEastern.ADOExt
                 throw new SqlCmdException("Error occurred when running SQL!", sql, ex);
             }
 
-            var setters = sql.CacheDataReaderSchema 
+            var setters = sql.CacheDataReaderSchema
                 ? objectMapping.GetDataReaderSetters(sql.Text, reader) : objectMapping.GetDataReaderSetters(reader);
 
             // reader will be closed inside reader.AsEnumerable();
@@ -139,37 +140,37 @@ namespace MagicEastern.ADOExt
 
         public static T Load<T>(this DBConnectionWrapper conn, T obj, DBTransactionWrapper trans = null) where T : new()
         {
-            var ta = conn.DBService.DBTableAdapterFactory.Get<T>(conn, trans);
+            var ta = conn.DBService.GetDBTableAdapter<T>();
             return ta.Load(obj, conn, trans);
         }
 
         public static int Delete<T>(this DBConnectionWrapper conn, T obj, DBTransactionWrapper trans = null) where T : new()
         {
-            var ta = conn.DBService.DBTableAdapterFactory.Get<T>(conn, trans);
+            var ta = conn.DBService.GetDBTableAdapter<T>();
             return ta.Delete(obj, conn, trans);
         }
 
         public static int Insert<T>(this DBConnectionWrapper conn, T obj, object properties, out T result, DBTransactionWrapper trans = null) where T : new()
         {
-            var ta = conn.DBService.DBTableAdapterFactory.Get<T>(conn, trans);
+            var ta = conn.DBService.GetDBTableAdapter<T>();
             return ta.Insert(obj, properties, out result, conn, trans);
         }
 
         public static int Insert<T>(this DBConnectionWrapper conn, T obj, object properties = null, DBTransactionWrapper trans = null) where T : new()
         {
-            var ta = conn.DBService.DBTableAdapterFactory.Get<T>(conn, trans);
+            var ta = conn.DBService.GetDBTableAdapter<T>();
             return ta.Insert(obj, properties, out _, conn, trans);
         }
 
         public static int Update<T>(this DBConnectionWrapper conn, T obj, object properties, out T result, DBTransactionWrapper trans = null) where T : new()
         {
-            var ta = conn.DBService.DBTableAdapterFactory.Get<T>(conn, trans);
+            var ta = conn.DBService.GetDBTableAdapter<T>();
             return ta.Update(obj, properties, out result, conn, trans);
         }
 
         public static int Update<T>(this DBConnectionWrapper conn, T obj, object properties = null, DBTransactionWrapper trans = null) where T : new()
         {
-            var ta = conn.DBService.DBTableAdapterFactory.Get<T>(conn, trans);
+            var ta = conn.DBService.GetDBTableAdapter<T>();
             return ta.Update(obj, properties, out _, conn, trans);
         }
     }
