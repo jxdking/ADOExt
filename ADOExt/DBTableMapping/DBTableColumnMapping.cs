@@ -17,6 +17,7 @@
             Required = mapping.Required;
             ObjectProperty = mapping.ObjectProperty;
             PropertyGetter = mapping.PropertyGetter;
+            PropertySetter = mapping.PropertySetter;
 
             ColumnName = metadata.COLUMN_NAME;
             TableName = metadata.TABLE_NAME;
@@ -26,9 +27,6 @@
             DataScale = metadata.DATA_SCALE;
             Required = Required || metadata.NULLABLE == "N";
             PK = metadata.PK == "Y";
-
-            // recreate setter as the Required condition may be changed.
-            PropertySetter = CreatePropertyObjectSetter(ObjectProperty);
         }
     }
 }

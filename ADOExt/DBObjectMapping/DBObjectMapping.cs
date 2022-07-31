@@ -11,7 +11,7 @@ namespace MagicEastern.ADOExt
 {
     public class DBObjectMapping<T> : IDBObjectMapping<T>
     {
-        public IReadOnlyList<IDBColumnMapping<T>> ColumnMappingList { get; private set; }
+        public List<IDBColumnMapping<T>> ColumnMappingList { get; private set; }
 
         private readonly ConcurrentDictionary<string, Action<T, IDataRecord>[]> DataReaderSetterCache = new ConcurrentDictionary<string, Action<T, IDataRecord>[]>();
 
@@ -28,7 +28,20 @@ namespace MagicEastern.ADOExt
                     var cName = colMapping.ColumnName;
                     var ordinal = reader.GetOrdinal(cName);
                     var setter = colMapping.GetPropSetterForRecord(reader.GetFieldType(ordinal));
-                    setters[i] = (o, r) => { setter(o, r, ordinal); };
+                    if (colMapping.Required)
+                    {
+                        setters[i] = (o, r) => { setter(o, r, ordinal); };
+                    }
+                    else
+                    {
+                        setters[i] = (o, r) =>
+                        {
+                            if (!r.IsDBNull(ordinal))
+                            {
+                                setter(o, r, ordinal);
+                            }
+                        };
+                    }
                 }
             }
             catch (IndexOutOfRangeException ex)

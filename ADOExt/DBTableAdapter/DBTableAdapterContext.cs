@@ -4,14 +4,14 @@ namespace MagicEastern.ADOExt
 {
     public class DBTableAdapterContext<T>
     {
-        public readonly IReadOnlyList<string> InsertColumns;
-        public readonly IReadOnlyList<IDBColumnMapping<T>> InsertColumnsInfo;
-        public readonly IReadOnlyList<string> AllColumns;
-        public readonly IReadOnlyList<IDBColumnMapping<T>> AllColumnsInfo;
-        public readonly IReadOnlyList<string> PkColumns;
-        public readonly IReadOnlyList<IDBColumnMapping<T>> PkColumnsInfo;
-        public readonly IReadOnlyList<string> SetColumns;
-        public readonly IReadOnlyList<IDBColumnMapping<T>> SetColumnsInfo;
+        public readonly List<string> InsertColumns;
+        public readonly List<IDBColumnMapping<T>> InsertColumnsInfo;
+        public readonly List<string> AllColumns;
+        public readonly List<IDBColumnMapping<T>> AllColumnsInfo;
+        public readonly List<string> PkColumns;
+        public readonly List<IDBColumnMapping<T>> PkColumnsInfo;
+        public readonly List<string> SetColumns;
+        public readonly List<IDBColumnMapping<T>> SetColumnsInfo;
 
         public IDBTableMapping<T> Mapping = null;
 
@@ -28,8 +28,9 @@ namespace MagicEastern.ADOExt
             var insertColumns = new List<string>();
             var setColumns = new List<string>();
 
-            foreach (var c in mapping.ColumnMappingList)
+            for (int i = 0; i < mapping.ColumnMappingList.Count; i++)
             {
+                var c = mapping.ColumnMappingList[i];
                 if (!c.NoInsert) { insertColumns.Add(c.ColumnName); insertColumnsInfo.Add(c); }
                 allColumns.Add(c.ColumnName);
                 allColumnsInfo.Add(c);

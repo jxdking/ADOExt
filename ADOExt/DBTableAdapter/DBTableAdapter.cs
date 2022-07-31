@@ -26,8 +26,9 @@ namespace MagicEastern.ADOExt
 
         public virtual void ApplyMaxLength(T entity)
         {
-            foreach (var ci in AllColumnsInfo)
+            for (int i = 0; i < AllColumnsInfo.Count; i++)
             {
+                var ci = AllColumnsInfo[i];
                 var col = (IDBTableColumnMapping<T>)ci;
                 PropertyInfo property = col.ObjectProperty;
                 if (property.PropertyType.Equals(typeof(string)) && col.DataType != "CLOB" && col.CharLength > 0)

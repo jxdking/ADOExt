@@ -58,36 +58,6 @@ namespace MagicEastern.ADOExt.SqlServer
             return tablename;
         }
 
-        /*
-        public string InsertTemplate<T>(DBTableAdapterContext<T> context)
-        {
-            var tablename = GetTableName(context.Mapping.TableName, context.Mapping.Schema);
-            string sql = "insert into " + tablename + "([" + string.Join("],[", context.InsertColumns) + "]) values (@" + string.Join(",@", context.InsertColumns) + ")";
-            return sql;
-        }
-
-        public string DeleteTemplate<T>(DBTableAdapterContext<T> context)
-        {
-            var tablename = GetTableName(context.Mapping.TableName, context.Mapping.Schema);
-            string sql = "delete from " + tablename + " where " + string.Join(" and ", context.PkColumns.Select(i => "[" + i + "]=@" + i));
-            return sql;
-        }
-
-        public string UpdateTemplate<T>(DBTableAdapterContext<T> context)
-        {
-            var tablename = GetTableName(context.Mapping.TableName, context.Mapping.Schema);
-            string sql = "update " + tablename + " set {0} where " + string.Join(" and ", context.PkColumns.Select(i => "[" + i + "]=@" + i));
-            return sql;
-        }
-
-        public string LoadTemplate<T>(DBTableAdapterContext<T> context)
-        {
-            var tablename = GetTableName(context.Mapping.TableName, context.Mapping.Schema);
-            string sql = "select [" + string.Join("],[", context.AllColumns) + "] from " + tablename + " where " + string.Join(" and ", context.PkColumns.Select(i => "[" + i + "]=@" + i));
-            return sql;
-        }
-        */
-
         public SqlInsertTemplateBase<T> GetInsertTemplate<T>(DBTableAdapterContext<T> context) where T : new()
         {
             return new SqlInsertTemplate<T>(context, this);

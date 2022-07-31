@@ -5,14 +5,10 @@ using System.Data.Common;
 
 namespace MagicEastern.ADOExt
 {
-    public static class DBConnectionExt
+    public static class DBConnectionWrapperExt
     {
         public static IDbCommand CreateCommand(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)
         {
-            if (trans != null && trans.Transaction == null)
-            {
-                throw new InvalidOperationException("The transaction has been committed or rollbacked. No farther operation is allowed.");
-            }
             return conn.DBService.DBClassResolver.CreateCommand(sql, conn, trans);
         }
 
@@ -79,20 +75,14 @@ namespace MagicEastern.ADOExt
             return reader.AsEnumerable().Transform(record => ParseFromDBValue<T>(record.GetValue(0)));
         }
 
-        private static IEnumerable<Parameter> GetOutputParameters(IDataParameterCollection paras)
+        private static IEnumerable<IDataParameter> GetOutputParameters(IDataParameterCollection paras)
         {
-            foreach (var pObj in paras)
+            for (int i = 0; i < paras.Count; i++)
             {
-                var p = (IDataParameter)pObj;
+                var p = (IDataParameter)paras[i];
                 if (p.Direction == ParameterDirection.InputOutput || p.Direction == ParameterDirection.Output || p.Direction == ParameterDirection.ReturnValue)
                 {
-                    yield return new Parameter
-                    {
-                        Name = p.ParameterName,
-                        Value = p.Value,
-                        Direction = p.Direction,
-                        DbType = p.DbType
-                    };
+                    yield return p;
                 }
             }
         }
@@ -102,7 +92,7 @@ namespace MagicEastern.ADOExt
             return Execute(conn, sql, out _, storeProcedure, trans);
         }
 
-        public static int Execute(this DBConnectionWrapper conn, Sql sql, out IEnumerable<Parameter> outputParameters
+        public static int Execute(this DBConnectionWrapper conn, Sql sql, out IEnumerable<IDataParameter> outputParameters
             , bool storeProcedure = false, DBTransactionWrapper trans = null)
         {
             IDbCommand command = conn.CreateCommand(sql, trans);

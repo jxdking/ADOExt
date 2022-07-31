@@ -81,11 +81,6 @@ namespace MagicEastern.ADOExt
             Dispose(true);
 
         }
-
-        ~DBConnectionWrapper()
-        {
-            Dispose(false);
-        }
         #endregion
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MagicEastern.ADOExt.Oracle
@@ -23,17 +24,12 @@ namespace MagicEastern.ADOExt.Oracle
             ColCount = context.InsertColumnsInfo.Count;
         }
 
-        private T ParseResult(Dictionary<string, object> paraDic)
-        {
-            return context.AllColumnsInfo.Parse(paraDic);
-        }
-
         public override int Execute(T obj, IEnumerable<IDBColumnMapping<T>> setCols, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
             var sql = Generate(obj, setCols);
             conn.Execute(sql, out var outParas, false, trans);
-            var paraDic = outParas.ToDictionary(i => i.Name, i => i.Value);
-            result = ParseResult(paraDic);
+            var paraDic = outParas.ToDictionary(i => i.ParameterName, i => DBNull.Value.Equals(i.Value) ? null : i.Value);
+            result = context.AllColumnsInfo.Parse(paraDic);
             return (int)paraDic[SqlTemplateUtil.RowCountParaName];
         }
 

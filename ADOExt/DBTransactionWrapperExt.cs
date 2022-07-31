@@ -3,7 +3,7 @@ using System.Data;
 
 namespace MagicEastern.ADOExt
 {
-    public static class DBTransactionExt
+    public static class DBTransactionWrapperExt
     {
         public static DataTable Query(this DBTransactionWrapper trans, Sql sql)
         {
@@ -30,7 +30,7 @@ namespace MagicEastern.ADOExt
             return trans.Connection.Execute(sql, out _, storeProcedure, trans);
         }
 
-        public static int Execute(this DBTransactionWrapper trans, Sql sql, out IEnumerable<Parameter> outputParameters
+        public static int Execute(this DBTransactionWrapper trans, Sql sql, out IEnumerable<IDataParameter> outputParameters
             , bool storeProcedure = false)
         {
             return trans.Connection.Execute(sql, out outputParameters, storeProcedure, trans);

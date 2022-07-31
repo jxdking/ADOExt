@@ -12,6 +12,10 @@ namespace MagicEastern.ADOExt.Oracle
             OracleCommand command = new OracleCommand(sql.Text, (OracleConnection)conn.Connection);
             if (trans != null)
             {
+                if (trans.Transaction == null)
+                {
+                    throw new InvalidOperationException("The transaction has been committed or rollbacked. No farther operation is allowed.");
+                }
                 command.Transaction = (OracleTransaction)trans.Transaction;
             }
             if (sql.Parameters.Count > 0)

@@ -6,7 +6,7 @@ namespace MagicEastern.ADOExt
 {
     public class DBTableMapping<T> : IDBTableMapping<T>
     {
-        public IReadOnlyList<IDBTableColumnMapping<T>> ColumnMappingList { get; }
+        public List<IDBTableColumnMapping<T>> ColumnMappingList { get; }
 
         public string TableName { get; }
         public string Schema { get; }

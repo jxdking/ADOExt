@@ -4,7 +4,7 @@ namespace MagicEastern.ADOExt
 {
     public interface IDBTableMapping<T>
     {
-        IReadOnlyList<IDBTableColumnMapping<T>> ColumnMappingList { get; }
+        List<IDBTableColumnMapping<T>> ColumnMappingList { get; }
         string Schema { get; }
         string TableName { get; }
     }

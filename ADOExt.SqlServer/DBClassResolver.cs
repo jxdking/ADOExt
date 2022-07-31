@@ -12,6 +12,10 @@ namespace MagicEastern.ADOExt.SqlServer
             SqlCommand command = new SqlCommand(sql.Text, (SqlConnection)conn.Connection);
             if (trans != null)
             {
+                if (trans.Transaction == null)
+                {
+                    throw new InvalidOperationException("The transaction has been committed or rollbacked. No farther operation is allowed.");
+                }
                 command.Transaction = (SqlTransaction)trans.Transaction;
             }
             foreach (var p in sql.Parameters)
@@ -45,7 +49,7 @@ namespace MagicEastern.ADOExt.SqlServer
             p.Direction = parameter.Direction;
             if (p.Direction != ParameterDirection.Input)
             {
-                p.Size = short.MaxValue;
+                p.Size = short.MaxValue; // remove the size limitation of the parameter.
             }
             return p;
         }
