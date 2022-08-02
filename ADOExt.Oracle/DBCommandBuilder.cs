@@ -5,7 +5,7 @@ using System.Data.Common;
 
 namespace MagicEastern.ADOExt.Oracle
 {
-    public class DBClassResolver : IDBClassResolver
+    public class DBCommandBuilder : IDBCommandBuilder
     {
         public IDbCommand CreateCommand(Sql sql, DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
@@ -51,16 +51,6 @@ namespace MagicEastern.ADOExt.Oracle
                 p.Size = short.MaxValue; // remove the size limitation of the parameter.
             }
             return p;
-        }
-
-        public DBErrorType GetDBErrorType(DbException ex)
-        {
-            return ((OracleException)ex).GetDBErrorType();
-        }
-
-        public IDbDataAdapter CreateDataAdapter(IDbCommand command)
-        {
-            return new OracleDataAdapter((OracleCommand)command);
         }
     }
 }

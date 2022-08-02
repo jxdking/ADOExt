@@ -20,10 +20,10 @@ namespace MagicEastern.ADOExt
         }
 
         public IServiceProvider DBServiceProvider { get; }
-        public IDBClassResolver DBClassResolver { get; }
+        public IDBCommandBuilder DBClassResolver { get; }
         public ISqlResolver SqlResolver { get; }
 
-        public DBService(IServiceProvider sp, IDBClassResolver dbClassResolver, ISqlResolver sqlResolver, ConnectionFactory connectionFactory)
+        public DBService(IServiceProvider sp, IDBCommandBuilder dbClassResolver, ISqlResolver sqlResolver, ConnectionFactory connectionFactory)
         {
             DBServiceProvider = sp;
             DBClassResolver = dbClassResolver;

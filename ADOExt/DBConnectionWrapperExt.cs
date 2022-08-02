@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -15,10 +16,11 @@ namespace MagicEastern.ADOExt
         public static DataTable Query(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)
         {
             IDbCommand command = conn.CreateCommand(sql, trans);
-            IDbDataAdapter da = conn.DBService.DBClassResolver.CreateDataAdapter(command);
-            DataSet ds = new DataSet();
-            da.Fill(ds);
-            return ds.Tables[0];
+            using (var reader = command.ExecuteReader()) {
+                var dt = new DataTable();
+                dt.Load(reader);
+                return dt;
+            }
         }
 
         public static IEnumerable<T> Query<T>(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null) where T : new()

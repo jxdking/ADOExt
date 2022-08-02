@@ -12,7 +12,7 @@ namespace MagicEastern.ADOExt.SqlServer
             services.AddSingleton(typeof(IDBTableMapping<>), typeof(DBTableMapping<>));
             services.AddSingleton(typeof(IDBTableAdapter<>), typeof(DBTableAdapter<>));
 
-            services.AddSingleton<IDBClassResolver, DBClassResolver>();
+            services.AddSingleton<IDBCommandBuilder, DBCommandBuilder>();
             services.AddSingleton<ISqlResolver, SqlResolver>();
 
             services.AddSingleton<ConnectionFactory>((sp) =>

@@ -5,7 +5,7 @@ namespace MagicEastern.ADOExt
     public interface IDBService
     {
         IServiceProvider DBServiceProvider { get; }
-        IDBClassResolver DBClassResolver { get; }
+        IDBCommandBuilder DBClassResolver { get; }
         ISqlResolver SqlResolver { get; }
 
         DBConnectionWrapper OpenConnection();

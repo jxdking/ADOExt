@@ -80,7 +80,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DBClassResolver.cs" />
+    <Compile Include="DBCommandBuilder.cs" />
     <Compile Include="OracleExceptionExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceExt.cs" />

@@ -25,7 +25,7 @@ namespace MagicEastern.ADOExt
         }
 
         #region IDBService
-        public IDBClassResolver DBClassResolver => Default.DBClassResolver;
+        public IDBCommandBuilder DBClassResolver => Default.DBClassResolver;
 
         public ISqlResolver SqlResolver => Default.SqlResolver;
 

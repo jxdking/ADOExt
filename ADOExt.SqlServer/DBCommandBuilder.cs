@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 
 namespace MagicEastern.ADOExt.SqlServer
 {
-    public class DBClassResolver : IDBClassResolver
+    public class DBCommandBuilder : IDBCommandBuilder
     {
         public IDbCommand CreateCommand(Sql sql, DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
@@ -29,11 +29,6 @@ namespace MagicEastern.ADOExt.SqlServer
             return command;
         }
 
-        public DBErrorType GetDBErrorType(DbException ex)
-        {
-            return DBErrorType.UNDEFINED;
-        }
-
         private object ToSqlParameter(Parameter parameter)
         {
             SqlParameter p;
@@ -52,11 +47,6 @@ namespace MagicEastern.ADOExt.SqlServer
                 p.Size = short.MaxValue; // remove the size limitation of the parameter.
             }
             return p;
-        }
-
-        public IDbDataAdapter CreateDataAdapter(IDbCommand command)
-        {
-            return new SqlDataAdapter((SqlCommand)command);
         }
     }
 }

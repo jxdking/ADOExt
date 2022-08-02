@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -46,10 +47,14 @@ namespace Test
             {
                 var trans = conn.BeginTransaction();
 
-                var orders = Query(conn, trans);
+                for (int i = 0; i < 1; i++) {
+                    var orders = Query(conn, trans);
+                }
                 int cnt = GetSingleValue(conn, trans);
                 var orderids = GetFirstColumn(conn, trans);
                 SalesOrderHeader order = Load(conn, orderids.First(), trans);
+                order = Load(conn, orderids.First(), trans);
+
                 order = Insert(conn, trans);
 
                 Update(conn, order, trans);
@@ -61,15 +66,19 @@ namespace Test
 
         static IEnumerable<SalesOrderHeader> Query(DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
+            Stopwatch sw = new Stopwatch();
             string sql = "SELECT [SalesOrderID],[RevisionNumber],[OrderDate],[DueDate],[ShipDate],[Status],[OnlineOrderFlag],[SalesOrderNumber],[PurchaseOrderNumber],[AccountNumber],[CustomerID],[SalesPersonID],[TerritoryID],[BillToAddressID],[ShipToAddressID],[ShipMethodID],[CreditCardID],[CreditCardApprovalCode],[CurrencyRateID],[SubTotal],[TaxAmt],[Freight],[TotalDue],[Comment],[rowguid],[ModifiedDate] FROM [Sales].[SalesOrderHeader]";
             var ds = conn.Query(sql, trans);
-            var ret = conn.Query<SalesOrderHeader>(sql, trans);
-            var t = ret.Last();
+            sw.Start();
+            var ret = conn.Query<SalesOrderHeader>(sql, trans).ToList();
+            sw.Stop();
+            Console.WriteLine($"Query {ret.Count} lines in {sw.ElapsedMilliseconds}ms");
+            //var t = ret.Last();
             //t = ret.Take(2).Last();
             //var ret = conn.Query<SalesOrderHeader>(sql, trans).Take(1);
             //Console.WriteLine("Queried " + t.Count() + " records.");
-            return null;
-            //return ret;
+            //return null;
+            return ret;
         }
 
         static int GetSingleValue(DBConnectionWrapper conn, DBTransactionWrapper trans = null)

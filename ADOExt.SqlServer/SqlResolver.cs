@@ -4,7 +4,7 @@ namespace MagicEastern.ADOExt.SqlServer
 {
     public class SqlResolver : ISqlResolver
     {
-        public Sql ColumnMetaDataFromTable(string table, string schema)
+        public virtual Sql ColumnMetaDataFromTable(string table, string schema)
         {
             if (string.IsNullOrEmpty(table))
             {
@@ -58,22 +58,22 @@ namespace MagicEastern.ADOExt.SqlServer
             return tablename;
         }
 
-        public SqlInsertTemplateBase<T> GetInsertTemplate<T>(DBTableAdapterContext<T> context) where T : new()
+        public virtual SqlInsertTemplateBase<T> GetInsertTemplate<T>(DBTableAdapterContext<T> context) where T : new()
         {
             return new SqlInsertTemplate<T>(context, this);
         }
 
-        public SqlUpdateTemplateBase<T> GetUpdateTemplate<T>(DBTableAdapterContext<T> context) where T : new()
+        public virtual SqlUpdateTemplateBase<T> GetUpdateTemplate<T>(DBTableAdapterContext<T> context) where T : new()
         {
             return new SqlUpdateTemplate<T>(context, this);
         }
 
-        public SqlLoadTemplateBase<T> GetLoadTemplate<T>(DBTableAdapterContext<T> context) where T : new()
+        public virtual SqlLoadTemplateBase<T> GetLoadTemplate<T>(DBTableAdapterContext<T> context) where T : new()
         {
             return new SqlLoadTemplate<T>(context, this);
         }
 
-        public SqlDeleteTemplateBase<T> GetDeleteTemplate<T>(DBTableAdapterContext<T> context) where T : new()
+        public virtual SqlDeleteTemplateBase<T> GetDeleteTemplate<T>(DBTableAdapterContext<T> context) where T : new()
         {
             return new SqlDeleteTemplate<T>(context, this);
         }
