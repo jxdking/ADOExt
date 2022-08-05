@@ -5,12 +5,12 @@ using System.Data;
 using System.Data.Common;
 
 namespace MagicEastern.ADOExt
-{
+{   
     public static class DBConnectionWrapperExt
     {
         public static IDbCommand CreateCommand(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)
         {
-            return conn.DBService.DBClassResolver.CreateCommand(sql, conn, trans);
+            return conn.DBService.DBCommandBuilder.CreateCommand(sql, conn, trans);
         }
 
         public static DataTable Query(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)

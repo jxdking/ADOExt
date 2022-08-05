@@ -7,50 +7,62 @@ namespace MagicEastern.ADOExt.Oracle
 {
     public class DBCommandBuilder : IDBCommandBuilder
     {
-        public IDbCommand CreateCommand(Sql sql, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        private void AttachConnection(IDbCommand command, DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
-            OracleCommand command = new OracleCommand(sql.Text, (OracleConnection)conn.Connection);
+            command.Connection = conn.Connection;
             if (trans != null)
             {
                 if (trans.Transaction == null)
                 {
                     throw new InvalidOperationException("The transaction has been committed or rollbacked. No farther operation is allowed.");
                 }
-                command.Transaction = (OracleTransaction)trans.Transaction;
+                command.Transaction = trans.Transaction;
             }
-            if (sql.Parameters.Count > 0)
+        }
+
+        public IDbCommand CreateCommand(Sql sql, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        {
+            if (sql.Command != null)
+            {
+                AttachConnection(sql.Command, conn, trans);
+                return sql.Command;
+            }
+            OracleCommand command = new OracleCommand(sql.Text);
+            AttachConnection(command, conn, trans);
+            var paras = sql.ParseParameters<OracleParameter>();
+            if (paras.Length > 0)
             {
                 command.BindByName = true;
-                foreach (var p in sql.Parameters)
+                foreach (var p in paras)
                 {
-                    command.Parameters.Add(ToOracleParameter(p));
+                    command.Parameters.Add(Scrub(p));
                 }
             }
             if (sql.CommandTimeout >= 0)
             {
                 command.CommandTimeout = sql.CommandTimeout;
             }
+            sql.Command = command;
             return command;
         }
 
-        private OracleParameter ToOracleParameter(Parameter parameter)
+        public IDbDataParameter CreateParameter()
         {
-            OracleParameter p;
+            return new OracleParameter();
+        }
+
+        private OracleParameter Scrub(OracleParameter parameter)
+        {
             if (parameter.Value == null)
             {
-                p = new OracleParameter(parameter.Name, DBNull.Value);
-                p.DbType = parameter.DbType;
+                parameter.Value = DBNull.Value;
+                //p.DbType = parameter.DbType;
             }
-            else
+            if (parameter.Direction != ParameterDirection.Input)
             {
-                p = new OracleParameter(parameter.Name, parameter.Value);
+                parameter.Size = short.MaxValue; // remove the size limitation of the parameter.
             }
-            p.Direction = parameter.Direction;
-            if (p.Direction != ParameterDirection.Input)
-            {
-                p.Size = short.MaxValue; // remove the size limitation of the parameter.
-            }
-            return p;
+            return parameter;
         }
     }
 }

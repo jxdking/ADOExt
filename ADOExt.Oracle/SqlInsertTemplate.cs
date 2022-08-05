@@ -6,11 +6,12 @@ namespace MagicEastern.ADOExt.Oracle
 {
     public class SqlInsertTemplate<T> : SqlInsertTemplateBase<T> where T : new()
     {
+        private readonly DBTableAdapterContext<T> context;
         private string Template;
         private string TemplateAllCol;
         private int ColCount;
         private List<IDBColumnMapping<T>> ReturnCols;
-        public SqlInsertTemplate(DBTableAdapterContext<T> context, SqlResolver sqlResolver) : base(context)
+        public SqlInsertTemplate(DBTableAdapterContext<T> context, ISqlResolver sqlResolver)
         {
             var tablename = sqlResolver.GetTableName(context.Mapping.TableName, context.Mapping.Schema);
             ReturnCols = SqlTemplateUtil.GetReturningCols(context).ToList();
@@ -22,6 +23,7 @@ namespace MagicEastern.ADOExt.Oracle
 
             TemplateAllCol = string.Format(Template, string.Join(",", context.InsertColumnsInfo.Select(i => i.ColumnName)), ":" + string.Join(",:", context.InsertColumnsInfo.Select(i => i.ColumnName)));
             ColCount = context.InsertColumnsInfo.Count;
+            this.context = context;
         }
 
         public override int Execute(T obj, IEnumerable<IDBColumnMapping<T>> setCols, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans)

@@ -5,28 +5,24 @@ namespace MagicEastern.ADOExt
 {
     public abstract class SqlLoadTemplateBase<T>
     {
-        protected readonly DBTableAdapterContext<T> context;
+        private string Template;
+        private IEnumerable<IDBColumnMapping<T>> PkCols;
+        private IDBCommandBuilder CommandBuilder;
 
-        /// <summary>
-        /// e.g.
-        /// select * from table_name where id = @id;
-        /// </summary>
-        protected string Template;
-        protected IEnumerable<IDBColumnMapping<T>> PkCols;
-
-        public SqlLoadTemplateBase(DBTableAdapterContext<T> context)
+        public SqlLoadTemplateBase(IEnumerable<IDBColumnMapping<T>> pkCols, IDBCommandBuilder commandBuilder, string template)
         {
-            PkCols = context.PkColumnsInfo;
-            this.context = context;
+            PkCols = pkCols;
+            CommandBuilder = commandBuilder;
+            Template = template;
         }
 
         public Sql Generate(T obj)
         {
-            var sql = new Sql(Template, PkCols.Select(i => new Parameter
-            {
-                Name = i.ColumnName,
-                Value = i.PropertyGetter(obj),
-                ObjectType = i.ObjectProperty.PropertyType
+            var sql = new Sql(Template, PkCols.Select(i => {
+                var p = CommandBuilder.CreateParameter();
+                p.ParameterName = i.ColumnName;
+                p.Value = i.PropertyGetter(obj);
+                return p;
             }));
             sql.CacheDataReaderSchema = true;
             return sql;

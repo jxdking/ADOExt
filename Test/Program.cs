@@ -39,6 +39,7 @@ namespace Test
         }
 
 
+        
         static void TestSqlServer()
         {
             var rp = DBManager;
@@ -47,7 +48,7 @@ namespace Test
             {
                 var trans = conn.BeginTransaction();
 
-                for (int i = 0; i < 1; i++) {
+                for (int i = 0; i < 10; i++) {
                     var orders = Query(conn, trans);
                 }
                 int cnt = GetSingleValue(conn, trans);
@@ -64,13 +65,15 @@ namespace Test
             }
         }
 
+        static Sql querysql = "SELECT [SalesOrderID],[RevisionNumber],[OrderDate],[DueDate],[ShipDate],[Status],[OnlineOrderFlag],[SalesOrderNumber],[PurchaseOrderNumber],[AccountNumber],[CustomerID],[SalesPersonID],[TerritoryID],[BillToAddressID],[ShipToAddressID],[ShipMethodID],[CreditCardID],[CreditCardApprovalCode],[CurrencyRateID],[SubTotal],[TaxAmt],[Freight],[TotalDue],[Comment],[rowguid],[ModifiedDate] FROM [Sales].[SalesOrderHeader]";
+
+
         static IEnumerable<SalesOrderHeader> Query(DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
             Stopwatch sw = new Stopwatch();
-            string sql = "SELECT [SalesOrderID],[RevisionNumber],[OrderDate],[DueDate],[ShipDate],[Status],[OnlineOrderFlag],[SalesOrderNumber],[PurchaseOrderNumber],[AccountNumber],[CustomerID],[SalesPersonID],[TerritoryID],[BillToAddressID],[ShipToAddressID],[ShipMethodID],[CreditCardID],[CreditCardApprovalCode],[CurrencyRateID],[SubTotal],[TaxAmt],[Freight],[TotalDue],[Comment],[rowguid],[ModifiedDate] FROM [Sales].[SalesOrderHeader]";
-            var ds = conn.Query(sql, trans);
+            //var ds = conn.Query(querysql, trans);
             sw.Start();
-            var ret = conn.Query<SalesOrderHeader>(sql, trans).ToList();
+            var ret = conn.Query<SalesOrderHeader>(querysql, trans).ToList();
             sw.Stop();
             Console.WriteLine($"Query {ret.Count} lines in {sw.ElapsedMilliseconds}ms");
             //var t = ret.Last();

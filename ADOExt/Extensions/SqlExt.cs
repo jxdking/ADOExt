@@ -1,10 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using System.Data;
 
 namespace MagicEastern.ADOExt
 {
     public static class SqlExt
     {
-        public static bool AppendIfNotNull(this Sql sql, string txt, Parameter para)
+        public static bool AppendIfNotNull(this Sql sql, string txt, IDbDataParameter para)
         {
             var p = para.Value;
             if (p != null && (!string.IsNullOrWhiteSpace(p as string) || !(p is string)))
@@ -16,9 +17,9 @@ namespace MagicEastern.ADOExt
             return false;
         }
 
-        public static string ToJsonString(this Sql sql)
+        public static void Add(this Dictionary<string, IDbDataParameter> dic, IDbDataParameter para)
         {
-            return JsonConvert.SerializeObject(sql, Formatting.Indented);
+            dic[para.ParameterName] = para;
         }
     }
 }

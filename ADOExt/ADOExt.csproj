@@ -12,7 +12,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Kevin Jin</Authors>
     <Company />
-    <Version>3.7.1</Version>
+    <Version>3.8</Version>
     <Description>A simple object mapping library. A simple extenstion for IDbConnection and IDbTransaction.</Description>
     <PackageTags>ORM Database ADO.NET Extension</PackageTags>
     <AssemblyName>MagicEastern.ADOExt</AssemblyName>
@@ -34,6 +34,7 @@
     <Compile Remove="DBObjectMapping\DBObjectMappingFactory.cs" />
     <Compile Remove="DBObjectMapping\IDBObjectMappingFactory.cs" />
     <Compile Remove="Sql\Parameter - Copy.cs" />
+    <Compile Remove="Sql\Parameter.cs" />
     <Compile Remove="Support\DataBaseType.cs" />
     <Compile Remove="Support\IDBCommandResolver.cs" />
     <Compile Remove="Support\IDBConnectionResolver.cs" />
@@ -41,7 +42,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup>

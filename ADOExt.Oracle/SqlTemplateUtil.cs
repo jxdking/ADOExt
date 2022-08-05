@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Oracle.ManagedDataAccess.Client;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MagicEastern.ADOExt.Oracle
@@ -15,31 +16,31 @@ namespace MagicEastern.ADOExt.Oracle
 
         internal static Sql GenerateSql<T>(T obj, string sqltxt, IEnumerable<IDBColumnMapping<T>> inputCols, IEnumerable<IDBColumnMapping<T>> returnCols)
         {
-
-            var sql = new Sql(sqltxt, returnCols.Select(i => new Parameter
+            var sql = new Sql(sqltxt, returnCols.Select(i => new OracleParameter
             {
-                Name = i.ColumnName,
-                ObjectType = i.ObjectProperty.PropertyType,
-                Direction = System.Data.ParameterDirection.Output
+                ParameterName = i.ColumnName,
+                Direction = System.Data.ParameterDirection.Output,
+                DbType = i.DbType
             }));
 
             foreach (var c in inputCols)
             {
-                var p = new Parameter
-                {
-                    Name = c.ColumnName,
-                    Value = c.PropertyGetter(obj),
-                    ObjectType = c.ObjectProperty.PropertyType,
-                    Direction = System.Data.ParameterDirection.Input
-                };
-                if (sql.Parameters.Remove(p))
-                {
+                if (sql.Parameters.TryGetValue(c.ColumnName, out var p)) {
                     p.Direction = System.Data.ParameterDirection.InputOutput;
+                    p.DbType = c.DbType;
+                    p.Value = c.PropertyGetter(obj);
+                } else {
+                    p = new OracleParameter
+                    {
+                        ParameterName = c.ColumnName,
+                        Value = c.PropertyGetter(obj),
+                        Direction = System.Data.ParameterDirection.Input
+                    };
+                    sql.Parameters.Add(p);
                 }
-                sql.Parameters.Add(p);
             }
 
-            sql.Parameters.Add(new Parameter { Name = RowCountParaName, Value = -1, Direction = System.Data.ParameterDirection.Output });
+            sql.Parameters.Add(new OracleParameter { ParameterName = RowCountParaName, Value = -1, Direction = System.Data.ParameterDirection.Output });
             return sql;
         }
     }

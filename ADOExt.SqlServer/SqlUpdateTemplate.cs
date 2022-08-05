@@ -1,16 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 
 namespace MagicEastern.ADOExt.SqlServer
 {
     public class SqlUpdateTemplate<T> : SqlUpdateTemplateBase<T> where T : new()
     {
+        private readonly DBTableAdapterContext<T> context;
         private string Template;
 
-        public SqlUpdateTemplate(DBTableAdapterContext<T> context, SqlResolver sqlResolver) : base(context)
+        public SqlUpdateTemplate(DBTableAdapterContext<T> context, ISqlResolver sqlResolver)
         {
             var tablename = sqlResolver.GetTableName(context.Mapping.TableName, context.Mapping.Schema);
-            Template = "update " + tablename + " set {0} where " + string.Join(" and ", PkCols.Select(i => "[" + i + "]=@" + i));
+            Template = "update " + tablename + " set {0} where " + string.Join(" and ", context.PkColumnsInfo.Select(i => "[" + i.ColumnName + "]=@" + i.ColumnName));
+            this.context = context;
         }
 
         public override int Execute(T obj, IEnumerable<IDBColumnMapping<T>> setCols, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans)
@@ -27,11 +30,10 @@ namespace MagicEastern.ADOExt.SqlServer
                 cols = setCols.ToList();
             }
             var sqltxt = string.Format(Template, string.Join(",", cols.Select(i => string.Join("", new string[] { "[", i.ColumnName, "]=@", i.ColumnName }))));
-            return new Sql(sqltxt, cols.Concat(PkCols).Select(i => new Parameter
+            return new Sql(sqltxt, cols.Concat(context.PkColumnsInfo).Select(i => new SqlParameter
             {
-                Name = i.ColumnName,
+                ParameterName = i.ColumnName,
                 Value = i.PropertyGetter(obj),
-                ObjectType = i.ObjectProperty.PropertyType
             }));
         }
     }

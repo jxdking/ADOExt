@@ -5,28 +5,24 @@ namespace MagicEastern.ADOExt
 {
     public abstract class SqlDeleteTemplateBase<T>
     {
-        protected readonly DBTableAdapterContext<T> context;
-
-        /// <summary>
-        /// e.g.
-        /// delete * from table_name where id = @id;
-        /// </summary>
-        protected string Template;
-        protected IEnumerable<IDBColumnMapping<T>> PkCols;
-
-        public SqlDeleteTemplateBase(DBTableAdapterContext<T> context)
+        private IDBCommandBuilder CommandBuilder;
+        private string Template;
+        private IEnumerable<IDBColumnMapping<T>> PkCols;
+        
+        protected SqlDeleteTemplateBase(IEnumerable<IDBColumnMapping<T>> pkCols, IDBCommandBuilder commandBuilder, string template)
         {
-            PkCols = context.PkColumnsInfo;
-            this.context = context;
+            CommandBuilder = commandBuilder;
+            Template = template;
+            PkCols = pkCols;
         }
 
         public Sql Generate(T obj)
         {
-            var sql = new Sql(Template, PkCols.Select(i => new Parameter
-            {
-                Name = i.ColumnName,
-                Value = i.PropertyGetter(obj),
-                ObjectType = i.ObjectProperty.PropertyType
+            var sql = new Sql(Template, PkCols.Select(i => {
+                var p = CommandBuilder.CreateParameter();
+                p.ParameterName = i.ColumnName;
+                p.Value = i.PropertyGetter(obj);
+                return p;
             }));
             return sql;
         }

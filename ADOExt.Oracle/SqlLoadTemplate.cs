@@ -1,13 +1,25 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace MagicEastern.ADOExt.Oracle
 {
     public class SqlLoadTemplate<T> : SqlLoadTemplateBase<T>
     {
-        public SqlLoadTemplate(DBTableAdapterContext<T> context, SqlResolver sqlResolver) : base(context)
+        private SqlLoadTemplate(IEnumerable<IDBColumnMapping<T>> pkCols, IDBCommandBuilder commandBuilder, string template)
+           : base(pkCols, commandBuilder, template)
+        {
+        }
+
+        public SqlLoadTemplate(DBTableAdapterContext<T> context, ISqlResolver sqlResolver, IDBCommandBuilder commandBuilder) :
+            this(context.PkColumnsInfo, commandBuilder, GetTemplateString(context, sqlResolver))
+        {
+        }
+
+        private static string GetTemplateString(DBTableAdapterContext<T> context, ISqlResolver sqlResolver)
         {
             var tablename = sqlResolver.GetTableName(context.Mapping.TableName, context.Mapping.Schema);
-            Template = "select " + string.Join(",", context.AllColumns) + " from " + tablename + " where " + string.Join(" and ", PkCols.Select(i => i + "=:" + i));
+            var template = "select " + string.Join(",", context.AllColumnsInfo) + " from " + tablename + " where " + string.Join(" and ", context.PkColumnsInfo.Select(i => i.ColumnName + "=:" + i.ColumnName));
+            return template;
         }
     }
 }

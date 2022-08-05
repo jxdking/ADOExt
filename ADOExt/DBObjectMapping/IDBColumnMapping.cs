@@ -11,6 +11,7 @@ namespace MagicEastern.ADOExt
         bool NoInsert { get; }
         bool NoUpdate { get; }
         PropertyInfo ObjectProperty { get; }
+        DbType DbType { get; }
         bool Required { get; }
         Func<T, object> PropertyGetter { get; }
 

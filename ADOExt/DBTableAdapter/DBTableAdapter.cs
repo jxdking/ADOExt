@@ -15,13 +15,13 @@ namespace MagicEastern.ADOExt
         public DBTableAdapter(IDBTableMapping<T> mapping, ISqlResolver sqlResolver)
             : base(mapping)
         {
-            if (PkColumns.Count > 0)
+            if (PkColumnsInfo.Count > 0)
             {
-                UpdateCommand = sqlResolver.GetUpdateTemplate(this);
-                DeleteCommand = sqlResolver.GetDeleteTemplate(this);
-                LoadCommand = sqlResolver.GetLoadTemplate(this);
+                UpdateCommand = sqlResolver.GetUpdateTemplate<T>();
+                DeleteCommand = sqlResolver.GetDeleteTemplate<T>();
+                LoadCommand = sqlResolver.GetLoadTemplate<T>();
             }
-            InsertCommand = sqlResolver.GetInsertTemplate(this);
+            InsertCommand = sqlResolver.GetInsertTemplate<T>();
         }
 
         public virtual void ApplyMaxLength(T entity)

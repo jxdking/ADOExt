@@ -10,7 +10,13 @@ namespace MagicEastern.ADOExt.SqlServer
         {
             services.AddSingleton(typeof(IDBObjectMapping<>), typeof(DBObjectMapping<>));
             services.AddSingleton(typeof(IDBTableMapping<>), typeof(DBTableMapping<>));
+            services.AddSingleton(typeof(DBTableAdapterContext<>));
             services.AddSingleton(typeof(IDBTableAdapter<>), typeof(DBTableAdapter<>));
+
+            services.AddSingleton(typeof(SqlDeleteTemplateBase<>), typeof(SqlDeleteTemplate<>));
+            services.AddSingleton(typeof(SqlLoadTemplateBase<>), typeof(SqlLoadTemplate<>));
+            services.AddSingleton(typeof(SqlInsertTemplateBase<>), typeof(SqlInsertTemplate<>));
+            services.AddSingleton(typeof(SqlUpdateTemplateBase<>), typeof(SqlUpdateTemplate<>));
 
             services.AddSingleton<IDBCommandBuilder, DBCommandBuilder>();
             services.AddSingleton<ISqlResolver, SqlResolver>();

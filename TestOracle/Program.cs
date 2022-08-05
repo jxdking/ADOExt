@@ -48,6 +48,7 @@ namespace TestOracle
                 int nor = GetSingleValue(conn, trans);
                 var firstcol = GetFirstColumn(conn, trans);
                 var emp = Load(conn, trans);
+                var emp2 = Load(conn, trans);
                 var inserted = Insert(conn, trans);
                 //Update0(inserted, conn, trans);
                 var updated = Update(conn, trans);
@@ -100,7 +101,7 @@ namespace TestOracle
                 using (var conn = rp.OpenConnection())
                 {
                     var trans = conn.BeginTransaction();
-                    Sql sql = new Sql(sqltxt, new Parameter { Name = "LAST_NAME", Value = "Jin", Direction = ParameterDirection.InputOutput });
+                    Sql sql = new Sql(sqltxt, new OracleParameter { ParameterName = "LAST_NAME", Value = "Jin", Direction = ParameterDirection.InputOutput });
                     trans.Execute(sql, false);
 
                     trans.Rollback();
@@ -118,6 +119,8 @@ namespace TestOracle
 
             Sql sql = new Sql("select * from employees where employee_id < :p_id", new { p_id = 110 });
             var ret = conn.Query<Employee>(sql, trans);
+            Console.WriteLine(ret.Count() + " rows queried.");
+            ret = conn.Query<Employee>(sql, trans);
             Console.WriteLine(ret.Count() + " rows queried.");
             return ret;
         }

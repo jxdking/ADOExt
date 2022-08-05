@@ -1,10 +1,16 @@
-﻿using System;
+﻿using Oracle.ManagedDataAccess.Client;
+using System;
 
 namespace MagicEastern.ADOExt.Oracle
 {
-    public class SqlResolver : ISqlResolver
+    public class SqlResolver : SqlResolverBase
     {
-        internal string GetTableName(string table, string schema)
+
+        public SqlResolver(IServiceProvider sp) : base(sp)
+        {
+        }
+
+        public override string GetTableName(string table, string schema)
         {
             string tablename = table;
             if (!string.IsNullOrWhiteSpace(schema))
@@ -14,7 +20,7 @@ namespace MagicEastern.ADOExt.Oracle
             return tablename;
         }
 
-        public virtual Sql ColumnMetaDataFromTable(string table, string schema)
+        public override Sql ColumnMetaDataFromTable(string table, string schema)
         {
             if (string.IsNullOrEmpty(table))
             {
@@ -39,31 +45,11 @@ namespace MagicEastern.ADOExt.Oracle
             if (!string.IsNullOrWhiteSpace(schema))
             {
                 sqltxt = string.Format(sqltxt, "and upper(a.owner) = :tableschema", "and upper(c.owner) = :tableschema");
-                return new Sql(sqltxt, new Parameter { Name = "tablename", Value = table.ToUpper() }, new Parameter { Name = "tableschema", Value = schema?.ToUpper() });
+                return new Sql(sqltxt, new OracleParameter { ParameterName = "tablename", Value = table.ToUpper() }, new OracleParameter { ParameterName = "tableschema", Value = schema?.ToUpper() });
             }
 
             sqltxt = string.Format(sqltxt, "", "");
-            return new Sql(sqltxt, new Parameter { Name = "tablename", Value = table.ToUpper() });
-        }
-
-        public virtual SqlInsertTemplateBase<T> GetInsertTemplate<T>(DBTableAdapterContext<T> context) where T : new()
-        {
-            return new SqlInsertTemplate<T>(context, this);
-        }
-
-        public virtual SqlUpdateTemplateBase<T> GetUpdateTemplate<T>(DBTableAdapterContext<T> context) where T : new()
-        {
-            return new SqlUpdateTemplate<T>(context, this);
-        }
-
-        public virtual SqlLoadTemplateBase<T> GetLoadTemplate<T>(DBTableAdapterContext<T> context) where T : new()
-        {
-            return new SqlLoadTemplate<T>(context, this);
-        }
-
-        public virtual SqlDeleteTemplateBase<T> GetDeleteTemplate<T>(DBTableAdapterContext<T> context) where T : new()
-        {
-            return new SqlDeleteTemplate<T>(context, this);
+            return new Sql(sqltxt, new OracleParameter { ParameterName = "tablename", Value = table.ToUpper() });
         }
     }
 }

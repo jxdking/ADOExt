@@ -6,23 +6,25 @@ namespace MagicEastern.ADOExt.Oracle
 {
     public class SqlUpdateTemplate<T> : SqlUpdateTemplateBase<T> where T : new()
     {
+        private readonly DBTableAdapterContext<T> context;
         private string Template;
         private string TemplateAllCol;
         private int ColCount;
         private List<IDBColumnMapping<T>> ReturnCols;
 
-        public SqlUpdateTemplate(DBTableAdapterContext<T> context, SqlResolver sqlResolver) : base(context)
+        public SqlUpdateTemplate(DBTableAdapterContext<T> context, ISqlResolver sqlResolver) 
         {
             var tablename = sqlResolver.GetTableName(context.Mapping.TableName, context.Mapping.Schema);
             ReturnCols = SqlTemplateUtil.GetReturningCols(context).ToList();
 
             Template = "begin\r\n";
-            Template += "update " + tablename + " set {0} where " + string.Join(" and ", PkCols.Select(i => i + "=:" + i)) + " returning " + string.Join(",", ReturnCols.Select(i => i.ColumnName)) + " into :" + string.Join(",:", ReturnCols.Select(i => i.ColumnName)) + ";\r\n";
+            Template += "update " + tablename + " set {0} where " + string.Join(" and ", context.PkColumnsInfo.Select(i => i.ColumnName + "=:" + i.ColumnName)) + " returning " + string.Join(",", ReturnCols.Select(i => i.ColumnName)) + " into :" + string.Join(",:", ReturnCols.Select(i => i.ColumnName)) + ";\r\n";
             Template += ":sql_nor := sql%ROWCOUNT;\r\n";
             Template += "end;";
 
             TemplateAllCol = string.Format(Template, string.Join(",", context.SetColumnsInfo.Select(i => i + "=:" + i)));
             ColCount = context.SetColumnsInfo.Count;
+            this.context = context;
         }
 
 
@@ -43,7 +45,7 @@ namespace MagicEastern.ADOExt.Oracle
             }
             var sqltxt = cols.Count == ColCount ? TemplateAllCol
                 : string.Format(Template, string.Join(",", cols.Select(i => string.Join("", new string[] { i.ColumnName, "=:", i.ColumnName }))));
-            return SqlTemplateUtil.GenerateSql(obj, sqltxt, cols.Concat(PkCols), ReturnCols);
+            return SqlTemplateUtil.GenerateSql(obj, sqltxt, cols.Concat(context.PkColumnsInfo), ReturnCols);
         }
     }
 }

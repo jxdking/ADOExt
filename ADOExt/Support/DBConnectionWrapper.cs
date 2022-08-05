@@ -1,8 +1,9 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 
 namespace MagicEastern.ADOExt
 {
-    public class DBConnectionWrapper : IDbConnection
+    public class DBConnectionWrapper : IDisposable
     {
         public IDbConnection Connection { get; private set; }
         public IDBService DBService { get; }
@@ -12,22 +13,12 @@ namespace MagicEastern.ADOExt
             Connection = connection;
             DBService = dbService;
         }
-
-        public string ConnectionString { get { return Connection.ConnectionString; } set { Connection.ConnectionString = value; } }
-
-        public int ConnectionTimeout => Connection.ConnectionTimeout;
-
-        public string Database => Connection.Database;
-
-        public ConnectionState State => Connection.State;
-
+        
         public DBTransactionWrapper BeginTransaction()
         {
             var trans = Connection.BeginTransaction();
             return new DBTransactionWrapper(trans, this);
         }
-
-        IDbTransaction IDbConnection.BeginTransaction() => BeginTransaction();
 
         public DBTransactionWrapper BeginTransaction(IsolationLevel il)
         {
@@ -35,26 +26,9 @@ namespace MagicEastern.ADOExt
             return new DBTransactionWrapper(trans, this);
         }
 
-        IDbTransaction IDbConnection.BeginTransaction(IsolationLevel il) => BeginTransaction(il);
-
-        public void ChangeDatabase(string databaseName)
-        {
-            Connection.ChangeDatabase(databaseName);
-        }
-
         public void Close()
         {
             Connection.Close();
-        }
-
-        public IDbCommand CreateCommand()
-        {
-            return Connection.CreateCommand();
-        }
-
-        public void Open()
-        {
-            Connection.Open();
         }
 
         #region IDisposable Support

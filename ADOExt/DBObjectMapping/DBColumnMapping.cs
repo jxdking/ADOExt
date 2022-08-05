@@ -18,6 +18,7 @@ namespace MagicEastern.ADOExt
         /// </summary>
         public bool Required { get; protected set; }
         public PropertyInfo ObjectProperty { get; protected set; }
+        public DbType DbType { get; protected set; }
         public Func<T, object> PropertyGetter { get; protected set; }
         public Action<T, object> PropertySetter { get; protected set; }
 
@@ -45,6 +46,7 @@ namespace MagicEastern.ADOExt
             var t = objectProperty.PropertyType;
             Required = required || Nullable.GetUnderlyingType(t) == null && t.IsValueType;
             ObjectProperty = objectProperty;
+            DbType = objectProperty.PropertyType.ToDbType();
             ColumnName = columnName;
             NoInsert = noInsert;
             NoUpdate = noUpdate;

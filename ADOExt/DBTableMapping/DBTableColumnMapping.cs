@@ -11,6 +11,7 @@
 
         public DBTableColumnMapping(IDBColumnMapping<T> mapping, DBTableMetadata metadata)
         {
+            DbType = mapping.DbType;
             ColumnName = mapping.ColumnName;
             NoInsert = mapping.NoInsert;
             NoUpdate = mapping.NoUpdate;

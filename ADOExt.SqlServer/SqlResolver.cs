@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Data.SqlClient;
 
 namespace MagicEastern.ADOExt.SqlServer
 {
-    public class SqlResolver : ISqlResolver
+    public class SqlResolver : SqlResolverBase
     {
-        public virtual Sql ColumnMetaDataFromTable(string table, string schema)
+        public SqlResolver(IServiceProvider sp) : base(sp)
+        { }
+
+        public override Sql ColumnMetaDataFromTable(string table, string schema)
         {
             if (string.IsNullOrEmpty(table))
             {
@@ -40,15 +44,15 @@ namespace MagicEastern.ADOExt.SqlServer
             if (!string.IsNullOrWhiteSpace(schema))
             {
                 sqlTxt = string.Format(sqlTxt, "and upper(TABLE_SCHEMA) = @tableschema", "AND upper(Col.TABLE_SCHEMA) = @tableschema");
-                return new Sql(sqlTxt, new Parameter { Name = "tablename", Value = table.ToUpper() }, new Parameter { Name = "tableschema", Value = schema?.ToUpper() });
+                return new Sql(sqlTxt, new SqlParameter { ParameterName = "tablename", Value = table.ToUpper() }, new SqlParameter { ParameterName = "tableschema", Value = schema?.ToUpper() });
             }
 
             sqlTxt = string.Format(sqlTxt, "", "");
-            return new Sql(sqlTxt, new Parameter { Name = "tablename", Value = table.ToUpper() });
+            return new Sql(sqlTxt, new SqlParameter { ParameterName = "tablename", Value = table.ToUpper() });
         }
 
 
-        internal string GetTableName(string table, string schema)
+        public override string GetTableName(string table, string schema)
         {
             string tablename = "[" + table + "]";
             if (!string.IsNullOrWhiteSpace(schema))
@@ -56,26 +60,6 @@ namespace MagicEastern.ADOExt.SqlServer
                 tablename = "[" + schema + "].[" + table + "]";
             }
             return tablename;
-        }
-
-        public virtual SqlInsertTemplateBase<T> GetInsertTemplate<T>(DBTableAdapterContext<T> context) where T : new()
-        {
-            return new SqlInsertTemplate<T>(context, this);
-        }
-
-        public virtual SqlUpdateTemplateBase<T> GetUpdateTemplate<T>(DBTableAdapterContext<T> context) where T : new()
-        {
-            return new SqlUpdateTemplate<T>(context, this);
-        }
-
-        public virtual SqlLoadTemplateBase<T> GetLoadTemplate<T>(DBTableAdapterContext<T> context) where T : new()
-        {
-            return new SqlLoadTemplate<T>(context, this);
-        }
-
-        public virtual SqlDeleteTemplateBase<T> GetDeleteTemplate<T>(DBTableAdapterContext<T> context) where T : new()
-        {
-            return new SqlDeleteTemplate<T>(context, this);
         }
     }
 }

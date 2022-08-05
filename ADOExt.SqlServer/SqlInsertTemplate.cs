@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 
 namespace MagicEastern.ADOExt.SqlServer
@@ -9,7 +10,7 @@ namespace MagicEastern.ADOExt.SqlServer
         private string TemplateAllCol;
         private int ColCount;
 
-        public SqlInsertTemplate(DBTableAdapterContext<T> context, SqlResolver sqlResolver) : base(context)
+        public SqlInsertTemplate(DBTableAdapterContext<T> context, ISqlResolver sqlResolver)
         {
             var tablename = sqlResolver.GetTableName(context.Mapping.TableName, context.Mapping.Schema);
             Template = "insert into " + tablename + "([{0}]) values ({1})";
@@ -33,11 +34,10 @@ namespace MagicEastern.ADOExt.SqlServer
             }
             string sqltxt = cols.Count == ColCount ? TemplateAllCol
                 : string.Format(Template, string.Join("],[", cols.Select(i => i.ColumnName)), "@" + string.Join(",@", cols.Select(i => i.ColumnName)));
-            return new Sql(sqltxt, cols.Select(i => new Parameter
+            return new Sql(sqltxt, cols.Select(i => new SqlParameter
             {
-                Name = i.ColumnName,
+                ParameterName = i.ColumnName,
                 Value = i.PropertyGetter(obj),
-                ObjectType = i.ObjectProperty.PropertyType
             }));
         }
     }

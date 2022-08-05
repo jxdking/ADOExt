@@ -7,46 +7,56 @@ namespace MagicEastern.ADOExt.SqlServer
 {
     public class DBCommandBuilder : IDBCommandBuilder
     {
-        public IDbCommand CreateCommand(Sql sql, DBConnectionWrapper conn, DBTransactionWrapper trans)
-        {
-            SqlCommand command = new SqlCommand(sql.Text, (SqlConnection)conn.Connection);
+        private void AttachConnection(IDbCommand command, DBConnectionWrapper conn, DBTransactionWrapper trans) {
+            command.Connection = conn.Connection;
             if (trans != null)
             {
                 if (trans.Transaction == null)
                 {
                     throw new InvalidOperationException("The transaction has been committed or rollbacked. No farther operation is allowed.");
                 }
-                command.Transaction = (SqlTransaction)trans.Transaction;
+                command.Transaction = trans.Transaction;
             }
-            foreach (var p in sql.Parameters)
+        }
+
+
+        public IDbCommand CreateCommand(Sql sql, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        {
+            if (sql.Command != null) {
+                AttachConnection(sql.Command, conn, trans);
+                return sql.Command;
+            }
+            SqlCommand command = new SqlCommand(sql.Text);
+            AttachConnection(command, conn, trans);
+            var paras = sql.ParseParameters<SqlParameter>();
+            foreach (var p in paras)
             {
-                command.Parameters.Add(ToSqlParameter(p));
+                command.Parameters.Add(Scrub(p));
             }
             if (sql.CommandTimeout >= 0)
             {
                 command.CommandTimeout = sql.CommandTimeout;
             }
+            sql.Command = command;
             return command;
         }
 
-        private object ToSqlParameter(Parameter parameter)
+        public IDbDataParameter CreateParameter()
         {
-            SqlParameter p;
+            return new SqlParameter();
+        }
+
+        private SqlParameter Scrub(SqlParameter parameter)
+        {
             if (parameter.Value == null)
             {
-                p = new SqlParameter(parameter.Name, DBNull.Value);
-                p.DbType = parameter.DbType;
+                parameter.Value = DBNull.Value;
             }
-            else
+            if (parameter.Direction != ParameterDirection.Input)
             {
-                p = new SqlParameter(parameter.Name, parameter.Value);
+                parameter.Size = short.MaxValue; // remove the size limitation of the parameter.
             }
-            p.Direction = parameter.Direction;
-            if (p.Direction != ParameterDirection.Input)
-            {
-                p.Size = short.MaxValue; // remove the size limitation of the parameter.
-            }
-            return p;
+            return parameter;
         }
     }
 }

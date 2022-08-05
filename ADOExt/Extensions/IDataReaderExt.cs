@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace MagicEastern.ADOExt
 {
@@ -42,8 +43,7 @@ namespace MagicEastern.ADOExt
                     obj = new T();
                     for (i = 0; i < setters.Length; i++)
                     {
-                        var setter = setters[i];
-                        setter(obj, rdr);
+                        setters[i](obj, rdr);
                     }
                     return obj;
                 });

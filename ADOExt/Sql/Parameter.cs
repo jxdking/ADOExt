@@ -4,9 +4,20 @@ using System.Data;
 
 namespace MagicEastern.ADOExt
 {
-    public class Parameter : IEquatable<Parameter>
+    public class Parameter : IDataParameter , IEquatable<Parameter>
     {
         private static readonly Dictionary<Type, DbType> DbTypeDic = new Dictionary<Type, DbType>() {
+           { typeof(bool?), DbType.Boolean          },
+           { typeof(byte?), DbType.Byte             },
+           { typeof(DateTime?), DbType.DateTime     },
+           { typeof(Decimal?), DbType.Decimal       },
+           { typeof(double?), DbType.Double         },
+           { typeof(float?), DbType.Double          },
+           { typeof(Guid?), DbType.Guid             },
+           { typeof(Int16?), DbType.Int16           },
+           { typeof(Int32?), DbType.Int32           },
+           { typeof(Int64?), DbType.Int64           },
+           { typeof(string), DbType.String         },
            { typeof(bool), DbType.Boolean          },
            { typeof(byte), DbType.Byte             },
            { typeof(DateTime), DbType.DateTime     },
@@ -17,10 +28,9 @@ namespace MagicEastern.ADOExt
            { typeof(Int16), DbType.Int16           },
            { typeof(Int32), DbType.Int32           },
            { typeof(Int64), DbType.Int64           },
-           { typeof(string), DbType.String         },
         };
 
-        public string Name { get; set; }
+        public string ParameterName { get; set; }
         public ParameterDirection Direction { get; set; } = ParameterDirection.Input;
 
         private DbType? dbType;
@@ -68,6 +78,11 @@ namespace MagicEastern.ADOExt
             }
         }
 
+        public bool IsNullable => throw new NotImplementedException();
+
+        public string SourceColumn { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public DataRowVersion SourceVersion { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public Parameter()
         {
 
@@ -75,20 +90,20 @@ namespace MagicEastern.ADOExt
 
         public Parameter(string name, object value)
         {
-            Name = name;
+            ParameterName = name;
             Value = value;
         }
 
         public override string ToString()
         {
-            return new KeyValuePair<string, object>(Name, Value).ToString();
+            return new KeyValuePair<string, object>(ParameterName, Value).ToString();
         }
 
         #region IEquatable
         public bool Equals(Parameter other)
         {
             if (other == null) { return false; }
-            return other.Name == Name;
+            return other.ParameterName == ParameterName;
         }
 
         public override bool Equals(object obj)
@@ -98,7 +113,7 @@ namespace MagicEastern.ADOExt
 
         public override int GetHashCode()
         {
-            return Name.GetHashCode();
+            return ParameterName.GetHashCode();
         }
         #endregion
     }
