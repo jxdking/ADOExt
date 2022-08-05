@@ -23,24 +23,64 @@ public class DeptInfo
 ```
 
 ### Step 2
-Create a ResolverProvider object. It will be used to create DBConnectionWrapper object. You can cache it static somewhere for later use throughout the application. 
+Register your database services.
 ```c#
-var rp = ResolverProvider(() => new SqlConnection(SqlConnString))
+/* 
+ * Register the DB Services. Thus, you can access DBServiceManager object
+ * through dependency injection cross the application.
+ * AddDatabase() can be called multiple times to add multiple databases.
+ */
+serviceCollection.AddDBServiceManger()
+    .AddDatabase("mydb", () => new SqlConnection(SqlConnString));
 ```
 
 ### Step 3
-Create a DBConnectionWrapper object when you want to access database.
+Request DBServiceManager object from dependency injection, like the example below.
 ```c#
-using (DBConnectionWrapper conn = rp.OpenConnection())
+public SomeController(DBServiceManager dbManager)
+```
+
+### Step 4
+Use the database.
+```c#
+using (var conn = dbManager.OpenConnection())
 {
-	// use conn to access database.
+	_ = conn.Query<DeptInfo>("select * from Department");
+
+	using (var trans = conn.BeginTransaction())
+	{
+	    trans.Insert(new DeptInfo
+	    {
+		DEPT_ID = "IT",
+		IODescriptionAttribute = "IT"
+	    });
+	    /*
+	     * If missing this line below, the transaction will be 
+	     * rolled back by default.
+	     */
+	    trans.Commit();
+	}
+}
+
+/*
+ * You may create transaction directly from DBServiceManager.
+ * Using optional indexer on DBServiceManger object to
+ * specify the database you want to use instead of the default one.
+ * The default database will be the 1st database when you
+ * calling AddDatabase() during registering services.
+ */
+using (var trans = dbManager["mydb"].BeginTransaction())
+{
+	// do your stuff...
+
+	trans.Commit();
 }
 ```
-DBConnectionWrapper class extends IDbConnection interface. Thus, you can use this object as usual SqlConneciton or OracleConnection object. There are also some useful extension methods on DBConnectionWrapper.
-#### Extension Methods:
+
+#### Extension Methods on the Connection object returned from OpenConnection():
 ```
-Query<T>
-Execute
+Query<T>()
+Execute()
 GetSingleValue<T>
 GetFirstColumn<T>
 Load<T>
