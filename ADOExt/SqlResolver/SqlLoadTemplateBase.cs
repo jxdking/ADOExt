@@ -1,25 +1,26 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace MagicEastern.ADOExt
 {
-    public abstract class SqlLoadTemplateBase<T>
+    public abstract class SqlLoadTemplateBase<T, TParameter> : ISqlLoadTemplate<T>
+        where TParameter : IDbDataParameter, new()
     {
         private string Template;
         private IEnumerable<IDBColumnMapping<T>> PkCols;
-        private IDBCommandBuilder CommandBuilder;
 
-        public SqlLoadTemplateBase(IEnumerable<IDBColumnMapping<T>> pkCols, IDBCommandBuilder commandBuilder, string template)
+        public SqlLoadTemplateBase(IEnumerable<IDBColumnMapping<T>> pkCols, string template)
         {
             PkCols = pkCols;
-            CommandBuilder = commandBuilder;
             Template = template;
         }
 
         public Sql Generate(T obj)
         {
-            var sql = new Sql(Template, PkCols.Select(i => {
-                var p = CommandBuilder.CreateParameter();
+            var sql = new Sql(Template, PkCols.Select(i =>
+            {
+                var p = new TParameter();
                 p.ParameterName = i.ColumnName;
                 p.Value = i.PropertyGetter(obj);
                 return p;

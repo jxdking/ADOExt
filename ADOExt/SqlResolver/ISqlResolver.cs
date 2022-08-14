@@ -7,9 +7,9 @@
     {
         string GetTableName(string table, string schema);
         Sql ColumnMetaDataFromTable(string table, string schema);
-        SqlInsertTemplateBase<T> GetInsertTemplate<T>() where T : new();
-        SqlUpdateTemplateBase<T> GetUpdateTemplate<T>() where T : new();
-        SqlLoadTemplateBase<T> GetLoadTemplate<T>() where T : new();
-        SqlDeleteTemplateBase<T> GetDeleteTemplate<T>() where T : new();
+        ISqlInsertTemplate<T> GetInsertTemplate<T>() where T : new();
+        ISqlUpdateTemplate<T> GetUpdateTemplate<T>() where T : new();
+        ISqlLoadTemplate<T> GetLoadTemplate<T>() where T : new();
+        ISqlDeleteTemplate<T> GetDeleteTemplate<T>() where T : new();
     }
 }

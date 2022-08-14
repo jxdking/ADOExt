@@ -65,6 +65,15 @@ namespace MagicEastern.ADOExt
 
         public Sql(string cmdText, object parameters)
         {
+            if (parameters is IEnumerable<IDbDataParameter> ps) {
+                Init(cmdText, ps);
+                return;
+            }
+            if (parameters is IDbDataParameter p) {
+                Init(cmdText, new IDbDataParameter[] { p });
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(cmdText))
             {
                 throw new ArgumentNullException("sql text is required!");
@@ -73,19 +82,20 @@ namespace MagicEastern.ADOExt
             DynaParameters = parameters;
         }
 
-        public T[] ParseParameters<T>() where T : IDbDataParameter, new()
+        public IDbDataParameter[] ParseParameters(IDbCommand command)
         {
             if (parameters != null)
             {
-                return parameters.Values.Cast<T>().ToArray();
+                return parameters.Values.ToArray();
             }
-            var ps = DynaParameters.GetType().GetProperties().Select(i => new T()
-            {
-                ParameterName = i.Name,
-                Direction = ParameterDirection.Input,
-                Value = i.GetValue(DynaParameters)
+            var ps = DynaParameters.GetType().GetProperties().Select(i => {
+                var p = command.CreateParameter();
+                p.ParameterName = i.Name;
+                p.Direction = ParameterDirection.Input;
+                p.Value = i.GetValue(DynaParameters);
+                return p;
             }).ToArray();
-            Parameters = ps.ToDictionary(i => i.ParameterName, i => (IDbDataParameter)i);
+            Parameters = ps.ToDictionary(i => i.ParameterName);
             return ps;
         }
 

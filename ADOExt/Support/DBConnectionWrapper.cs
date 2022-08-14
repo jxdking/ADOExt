@@ -7,12 +7,16 @@ namespace MagicEastern.ADOExt
     {
         public IDbConnection Connection { get; private set; }
         public IDBService DBService { get; }
+        private readonly Func<IDbCommand> commandFactory;
 
-        public DBConnectionWrapper(IDbConnection connection, IDBService dbService)
+        public DBConnectionWrapper(IDbConnection connection, IDBService dbService, Func<IDbCommand> commandFactory)
         {
             Connection = connection;
             DBService = dbService;
+            this.commandFactory = commandFactory;
         }
+
+        public IDbCommand CreateCommand() => commandFactory();
         
         public DBTransactionWrapper BeginTransaction()
         {
@@ -33,6 +37,7 @@ namespace MagicEastern.ADOExt
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
+       
 
         protected virtual void Dispose(bool disposing)
         {

@@ -5,18 +5,63 @@ using System.Data;
 using System.Data.Common;
 
 namespace MagicEastern.ADOExt
-{   
+{
     public static class DBConnectionWrapperExt
     {
-        public static IDbCommand CreateCommand(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)
+        private static void AttachConnection(IDbCommand command, DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
-            return conn.DBService.DBCommandBuilder.CreateCommand(sql, conn, trans);
+            command.Connection = conn.Connection;
+            if (trans != null)
+            {
+                if (trans.Transaction == null)
+                {
+                    throw new InvalidOperationException("The transaction has been committed or rollbacked. No farther operation is allowed.");
+                }
+                command.Transaction = trans.Transaction;
+            }
+        }
+
+        private static IDbCommand CreateCommand(Sql sql, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        {
+            if (sql.Command != null)
+            {
+                AttachConnection(sql.Command, conn, trans);
+                return sql.Command;
+            }
+            var command = conn.CreateCommand();
+            command.CommandText = sql.Text;
+            AttachConnection(command, conn, trans);
+            var paras = sql.ParseParameters(command);
+            foreach (var p in paras)
+            {
+                command.Parameters.Add(Scrub(p));
+            }
+            if (sql.CommandTimeout >= 0)
+            {
+                command.CommandTimeout = sql.CommandTimeout;
+            }
+            sql.Command = command;
+            return command;
+        }
+
+        private static IDbDataParameter Scrub(IDbDataParameter parameter)
+        {
+            if (parameter.Value == null)
+            {
+                parameter.Value = DBNull.Value;
+            }
+            if (parameter.Direction != ParameterDirection.Input)
+            {
+                parameter.Size = short.MaxValue; // remove the size limitation of the parameter.
+            }
+            return parameter;
         }
 
         public static DataTable Query(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)
         {
-            IDbCommand command = conn.CreateCommand(sql, trans);
-            using (var reader = command.ExecuteReader()) {
+            IDbCommand command = CreateCommand(sql, conn, trans);
+            using (var reader = command.ExecuteReader())
+            {
                 var dt = new DataTable();
                 dt.Load(reader);
                 return dt;
@@ -27,7 +72,7 @@ namespace MagicEastern.ADOExt
         {
             var objectMapping = conn.DBService.GetDBObjectMapping<T>();
 
-            IDbCommand command = conn.CreateCommand(sql, trans);
+            IDbCommand command = CreateCommand(sql, conn, trans);
             IDataReader reader;
             try
             {
@@ -47,7 +92,7 @@ namespace MagicEastern.ADOExt
 
         public static T GetSingleValue<T>(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)
         {
-            IDbCommand command = conn.CreateCommand(sql, trans);
+            IDbCommand command = CreateCommand(sql, conn, trans);
 
             try
             {
@@ -62,7 +107,7 @@ namespace MagicEastern.ADOExt
 
         public static IEnumerable<T> GetFirstColumn<T>(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)
         {
-            IDbCommand command = conn.CreateCommand(sql, trans);
+            IDbCommand command = CreateCommand(sql, conn, trans);
 
             IDataReader reader;
             try
@@ -97,7 +142,7 @@ namespace MagicEastern.ADOExt
         public static int Execute(this DBConnectionWrapper conn, Sql sql, out IEnumerable<IDataParameter> outputParameters
             , bool storeProcedure = false, DBTransactionWrapper trans = null)
         {
-            IDbCommand command = conn.CreateCommand(sql, trans);
+            IDbCommand command = CreateCommand(sql, conn, trans);
             if (storeProcedure) { command.CommandType = CommandType.StoredProcedure; }
 
             int ret;

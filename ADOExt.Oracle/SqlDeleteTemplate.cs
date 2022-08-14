@@ -1,25 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using MagicEastern.ADOExt.Common.Oracle;
+using Oracle.ManagedDataAccess.Client;
 
 namespace MagicEastern.ADOExt.Oracle
 {
-    public class SqlDeleteTemplate<T> : SqlDeleteTemplateBase<T>
+    public class SqlDeleteTemplate<T> : SqlDeleteTemplateCommon<T, OracleParameter>
     {
-        private SqlDeleteTemplate(IEnumerable<IDBColumnMapping<T>> pkCols, IDBCommandBuilder commandBuilder, string template)
-            : base(pkCols, commandBuilder, template)
+        public SqlDeleteTemplate(DBTableAdapterContext<T> context, ISqlResolver sqlResolver) : base(context, sqlResolver)
         {
-        }
-
-        public SqlDeleteTemplate(DBTableAdapterContext<T> context, ISqlResolver sqlResolver, IDBCommandBuilder commandBuilder) :
-            this(context.PkColumnsInfo, commandBuilder, GetTemplateString(context, sqlResolver))
-        {
-        }
-
-        private static string GetTemplateString(DBTableAdapterContext<T> context, ISqlResolver sqlResolver)
-        {
-            var tablename = sqlResolver.GetTableName(context.Mapping.TableName, context.Mapping.Schema);
-            var template = "delete from " + tablename + " where " + string.Join(" and ", context.PkColumnsInfo.Select(i => i.ColumnName + "=:" + i.ColumnName));
-            return template;
         }
     }
 }

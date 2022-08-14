@@ -1,8 +1,8 @@
-﻿using Oracle.ManagedDataAccess.Client;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
-namespace MagicEastern.ADOExt.Oracle
+namespace MagicEastern.ADOExt.Common.Oracle
 {
     internal static class SqlTemplateUtil
     {
@@ -14,9 +14,10 @@ namespace MagicEastern.ADOExt.Oracle
             return returningCols;
         }
 
-        internal static Sql GenerateSql<T>(T obj, string sqltxt, IEnumerable<IDBColumnMapping<T>> inputCols, IEnumerable<IDBColumnMapping<T>> returnCols)
+        internal static Sql GenerateSql<T, TParameter>(T obj, string sqltxt, IEnumerable<IDBColumnMapping<T>> inputCols, IEnumerable<IDBColumnMapping<T>> returnCols)
+            where TParameter : IDbDataParameter, new()
         {
-            var sql = new Sql(sqltxt, returnCols.Select(i => new OracleParameter
+            var sql = new Sql(sqltxt, returnCols.Select(i => new TParameter
             {
                 ParameterName = i.ColumnName,
                 Direction = System.Data.ParameterDirection.Output,
@@ -30,7 +31,7 @@ namespace MagicEastern.ADOExt.Oracle
                     p.DbType = c.DbType;
                     p.Value = c.PropertyGetter(obj);
                 } else {
-                    p = new OracleParameter
+                    p = new TParameter
                     {
                         ParameterName = c.ColumnName,
                         Value = c.PropertyGetter(obj),
@@ -40,7 +41,7 @@ namespace MagicEastern.ADOExt.Oracle
                 }
             }
 
-            sql.Parameters.Add(new OracleParameter { ParameterName = RowCountParaName, Value = -1, Direction = System.Data.ParameterDirection.Output });
+            sql.Parameters.Add(new TParameter { ParameterName = RowCountParaName, Value = -1, Direction = System.Data.ParameterDirection.Output });
             return sql;
         }
     }

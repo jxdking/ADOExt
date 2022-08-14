@@ -2,7 +2,7 @@
 
 namespace MagicEastern.ADOExt
 {
-    public abstract class SqlUpdateTemplateBase<T>
+    public abstract class SqlUpdateTemplateBase<T> : ISqlUpdateTemplate<T>
     {
         public abstract Sql Generate(T obj, IEnumerable<IDBColumnMapping<T>> setCols);
 

@@ -1,25 +1,26 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace MagicEastern.ADOExt
 {
-    public abstract class SqlDeleteTemplateBase<T>
+    public abstract class SqlDeleteTemplateBase<T, TParameter> : ISqlDeleteTemplate<T>
+        where TParameter : IDbDataParameter, new()
     {
-        private IDBCommandBuilder CommandBuilder;
         private string Template;
         private IEnumerable<IDBColumnMapping<T>> PkCols;
-        
-        protected SqlDeleteTemplateBase(IEnumerable<IDBColumnMapping<T>> pkCols, IDBCommandBuilder commandBuilder, string template)
+
+        protected SqlDeleteTemplateBase(IEnumerable<IDBColumnMapping<T>> pkCols, string template)
         {
-            CommandBuilder = commandBuilder;
             Template = template;
             PkCols = pkCols;
         }
 
         public Sql Generate(T obj)
         {
-            var sql = new Sql(Template, PkCols.Select(i => {
-                var p = CommandBuilder.CreateParameter();
+            var sql = new Sql(Template, PkCols.Select(i =>
+            {
+                var p = new TParameter();
                 p.ParameterName = i.ColumnName;
                 p.Value = i.PropertyGetter(obj);
                 return p;

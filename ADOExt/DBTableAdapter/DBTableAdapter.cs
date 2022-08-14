@@ -7,10 +7,10 @@ namespace MagicEastern.ADOExt
 {
     public class DBTableAdapter<T> : DBTableAdapterContext<T>, IDBTableAdapter<T> where T : new()
     {
-        private readonly SqlInsertTemplateBase<T> InsertCommand = null;
-        private readonly SqlUpdateTemplateBase<T> UpdateCommand = null;
-        private readonly SqlDeleteTemplateBase<T> DeleteCommand = null;
-        private readonly SqlLoadTemplateBase<T> LoadCommand = null;
+        private readonly ISqlInsertTemplate<T> InsertCommand = null;
+        private readonly ISqlUpdateTemplate<T> UpdateCommand = null;
+        private readonly ISqlDeleteTemplate<T> DeleteCommand = null;
+        private readonly ISqlLoadTemplate<T> LoadCommand = null;
 
         public DBTableAdapter(IDBTableMapping<T> mapping, ISqlResolver sqlResolver)
             : base(mapping)

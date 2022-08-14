@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Data;
+using System.Data.SqlClient;
 
 namespace MagicEastern.ADOExt.SqlServer
 {
@@ -13,12 +14,11 @@ namespace MagicEastern.ADOExt.SqlServer
             services.AddSingleton(typeof(DBTableAdapterContext<>));
             services.AddSingleton(typeof(IDBTableAdapter<>), typeof(DBTableAdapter<>));
 
-            services.AddSingleton(typeof(SqlDeleteTemplateBase<>), typeof(SqlDeleteTemplate<>));
-            services.AddSingleton(typeof(SqlLoadTemplateBase<>), typeof(SqlLoadTemplate<>));
-            services.AddSingleton(typeof(SqlInsertTemplateBase<>), typeof(SqlInsertTemplate<>));
-            services.AddSingleton(typeof(SqlUpdateTemplateBase<>), typeof(SqlUpdateTemplate<>));
+            services.AddSingleton(typeof(ISqlDeleteTemplate<>), typeof(SqlDeleteTemplate<>));
+            services.AddSingleton(typeof(ISqlLoadTemplate<>), typeof(SqlLoadTemplate<>));
+            services.AddSingleton(typeof(ISqlInsertTemplate<>), typeof(SqlInsertTemplate<>));
+            services.AddSingleton(typeof(ISqlUpdateTemplate<>), typeof(SqlUpdateTemplate<>));
 
-            services.AddSingleton<IDBCommandBuilder, DBCommandBuilder>();
             services.AddSingleton<ISqlResolver, SqlResolver>();
 
             services.AddSingleton<ConnectionFactory>((sp) =>
@@ -27,7 +27,7 @@ namespace MagicEastern.ADOExt.SqlServer
                 {
                     var conn = createConnection();
                     conn.Open();
-                    return new DBConnectionWrapper(conn, sp.GetService<IDBService>());
+                    return new DBConnectionWrapper(conn, sp.GetService<IDBService>(), () => new SqlCommand());
                 };
             });
             services.AddSingleton<IDBService, DBService>();

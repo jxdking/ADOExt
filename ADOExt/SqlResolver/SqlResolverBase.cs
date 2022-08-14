@@ -18,24 +18,24 @@ namespace MagicEastern.ADOExt
         public abstract Sql ColumnMetaDataFromTable(string table, string schema);
         public abstract string GetTableName(string table, string schema);
 
-        public SqlDeleteTemplateBase<T> GetDeleteTemplate<T>() where T : new()
+        public ISqlDeleteTemplate<T> GetDeleteTemplate<T>() where T : new()
         {
-            return DBServiceProvider.GetService<SqlDeleteTemplateBase<T>>();
+            return DBServiceProvider.GetService<ISqlDeleteTemplate<T>>();
         }
 
-        public SqlInsertTemplateBase<T> GetInsertTemplate<T>() where T : new()
+        public ISqlInsertTemplate<T> GetInsertTemplate<T>() where T : new()
         {
-            return DBServiceProvider.GetService<SqlInsertTemplateBase<T>>();
+            return DBServiceProvider.GetService<ISqlInsertTemplate<T>>();
         }
 
-        public SqlLoadTemplateBase<T> GetLoadTemplate<T>() where T : new()
+        public ISqlLoadTemplate<T> GetLoadTemplate<T>() where T : new()
         {
-            return DBServiceProvider.GetService<SqlLoadTemplateBase<T>>();
+            return DBServiceProvider.GetService<ISqlLoadTemplate<T>>();
         }
 
-        public SqlUpdateTemplateBase<T> GetUpdateTemplate<T>() where T : new()
+        public ISqlUpdateTemplate<T> GetUpdateTemplate<T>() where T : new()
         {
-            return DBServiceProvider.GetService<SqlUpdateTemplateBase<T>>();
+            return DBServiceProvider.GetService<ISqlUpdateTemplate<T>>();
         }
     }
 }

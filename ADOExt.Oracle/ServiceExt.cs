@@ -14,12 +14,11 @@ namespace MagicEastern.ADOExt.Oracle
             services.AddSingleton(typeof(DBTableAdapterContext<>));
             services.AddSingleton(typeof(IDBTableAdapter<>), typeof(DBTableAdapter<>));
 
-            services.AddSingleton(typeof(SqlDeleteTemplateBase<>), typeof(SqlDeleteTemplate<>));
-            services.AddSingleton(typeof(SqlLoadTemplateBase<>), typeof(SqlLoadTemplate<>));
-            services.AddSingleton(typeof(SqlInsertTemplateBase<>), typeof(SqlInsertTemplate<>));
-            services.AddSingleton(typeof(SqlUpdateTemplateBase<>), typeof(SqlUpdateTemplate<>));
+            services.AddSingleton(typeof(ISqlDeleteTemplate<>), typeof(SqlDeleteTemplate<>));
+            services.AddSingleton(typeof(ISqlLoadTemplate<>), typeof(SqlLoadTemplate<>));
+            services.AddSingleton(typeof(ISqlInsertTemplate<>), typeof(SqlInsertTemplate<>));
+            services.AddSingleton(typeof(ISqlUpdateTemplate<>), typeof(SqlUpdateTemplate<>));
 
-            services.AddSingleton<IDBCommandBuilder, DBCommandBuilder>();
             services.AddSingleton<ISqlResolver, SqlResolver>();
 
             services.AddSingleton<ConnectionFactory>((sp) =>
@@ -28,7 +27,11 @@ namespace MagicEastern.ADOExt.Oracle
                 {
                     var conn = createConnection();
                     conn.Open();
-                    return new DBConnectionWrapper(conn, sp.GetService<IDBService>());
+                    return new DBConnectionWrapper(conn, sp.GetService<IDBService>(), () => {
+                        var cmd = new OracleCommand();
+                        cmd.BindByName = true;
+                        return cmd;
+                    });
                 };
             });
             services.AddSingleton<IDBService, DBService>();
