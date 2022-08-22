@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace MagicEastern.ADOExt
 {
@@ -20,6 +21,18 @@ namespace MagicEastern.ADOExt
         public static void Add(this Dictionary<string, IDbDataParameter> dic, IDbDataParameter para)
         {
             dic[para.ParameterName] = para;
+        }
+
+        public static Sql AddParamter(this Sql sql, IDbDataParameter para) {
+            sql.Parameters[para.ParameterName] = para;
+            return sql;
+        }
+
+        public static Sql AddParamters(this Sql sql, object parameters) {
+            foreach (var p in parameters.GetType().GetProperties()) {
+                sql.Parameters[p.Name] = new Parameter(p.Name, p.GetValue(parameters));
+            }
+            return sql;
         }
     }
 }

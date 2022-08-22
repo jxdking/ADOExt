@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using MagicEastern.CachedFunc2;
 using System;
 using System.Data;
 using System.Data.SqlClient;
@@ -7,8 +8,11 @@ namespace MagicEastern.ADOExt.SqlServer
 {
     public static class ServiceExt
     {
-        public static IServiceCollection AddSqlServer(this IServiceCollection services, Func<IDbConnection> createConnection)
+        public static IServiceCollection AddSqlServer(this IServiceCollection services, Func<SqlConnection> createConnection)
         {
+            services.AddMemoryCache((opts) => { opts.SizeLimit = 10000; });
+            services.AddCachedFunc();
+
             services.AddSingleton(typeof(IDBObjectMapping<>), typeof(DBObjectMapping<>));
             services.AddSingleton(typeof(IDBTableMapping<>), typeof(DBTableMapping<>));
             services.AddSingleton(typeof(DBTableAdapterContext<>));
@@ -27,7 +31,8 @@ namespace MagicEastern.ADOExt.SqlServer
                 {
                     var conn = createConnection();
                     conn.Open();
-                    return new DBConnectionWrapper(conn, sp.GetService<IDBService>(), () => new SqlCommand());
+                    return new DBConnectionWrapper(conn, sp.GetService<IDBService>()
+                        , () => new SqlCommand() { CommandTimeout = 30 });
                 };
             });
             services.AddSingleton<IDBService, DBService>();
@@ -35,7 +40,7 @@ namespace MagicEastern.ADOExt.SqlServer
             return services;
         }
 
-        public static DBServiceManagerBuilder AddDatabase(this DBServiceManagerBuilder builder, string name, Func<IDbConnection> createConnection)
+        public static DBServiceManagerBuilder AddDatabase(this DBServiceManagerBuilder builder, string name, Func<SqlConnection> createConnection)
         {
             if (name == null) { throw new ArgumentNullException("[name] is required."); }
             if (createConnection == null) { throw new ArgumentNullException("Connection constructor [createConnection] is required."); }

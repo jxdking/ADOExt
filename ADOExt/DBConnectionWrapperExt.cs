@@ -31,30 +31,8 @@ namespace MagicEastern.ADOExt
             var command = conn.CreateCommand();
             command.CommandText = sql.Text;
             AttachConnection(command, conn, trans);
-            var paras = sql.ParseParameters(command);
-            foreach (var p in paras)
-            {
-                command.Parameters.Add(Scrub(p));
-            }
-            if (sql.CommandTimeout >= 0)
-            {
-                command.CommandTimeout = sql.CommandTimeout;
-            }
-            sql.Command = command;
+            sql.SetupCommand(command);
             return command;
-        }
-
-        private static IDbDataParameter Scrub(IDbDataParameter parameter)
-        {
-            if (parameter.Value == null)
-            {
-                parameter.Value = DBNull.Value;
-            }
-            if (parameter.Direction != ParameterDirection.Input)
-            {
-                parameter.Size = short.MaxValue; // remove the size limitation of the parameter.
-            }
-            return parameter;
         }
 
         public static DataTable Query(this DBConnectionWrapper conn, Sql sql, DBTransactionWrapper trans = null)
@@ -83,8 +61,7 @@ namespace MagicEastern.ADOExt
                 throw new SqlCmdException("Error occurred when running SQL!", sql, ex);
             }
 
-            var setters = sql.CacheDataReaderSchema
-                ? objectMapping.GetDataReaderSetters(sql.Text, reader) : objectMapping.GetDataReaderSetters(reader);
+            var setters = objectMapping.GetDataReaderSetters(sql, reader);
 
             // reader will be closed inside reader.AsEnumerable();
             return reader.AsEnumerable(setters);

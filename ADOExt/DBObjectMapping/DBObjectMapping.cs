@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MagicEastern.CachedFunc2;
+using Microsoft.Extensions.Caching.Memory;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
@@ -9,14 +11,43 @@ using System.Reflection;
 
 namespace MagicEastern.ADOExt
 {
+    internal class ReaderSettersFactoryPara : IEquatable<ReaderSettersFactoryPara>
+    {
+        public Sql Sql;
+        public IDataRecord Reader;
+
+        public bool Equals(ReaderSettersFactoryPara other)
+        {
+            return this.Sql.Text.Equals(other?.Sql.Text);
+        }
+        public override bool Equals(object obj)
+        {
+            if (obj is ReaderSettersFactoryPara para)
+            {
+                return Equals(para);
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Sql.Text.GetHashCode();
+        }
+    }
+
     public class DBObjectMapping<T> : IDBObjectMapping<T>
     {
         public List<IDBColumnMapping<T>> ColumnMappingList { get; private set; }
 
-        private readonly ConcurrentDictionary<string, Action<T, IDataRecord>[]> DataReaderSetterCache = new ConcurrentDictionary<string, Action<T, IDataRecord>[]>();
+        public Action<T, IDataRecord>[] GetDataReaderSetters(Sql sql, IDataRecord reader)
+            => GetDataReaderSettersCached(new ReaderSettersFactoryPara { Sql = sql, Reader = reader });
 
-        public Action<T, IDataRecord>[] GetDataReaderSetters(IDataRecord reader)
+        private CachedFunc<ReaderSettersFactoryPara, Action<T, IDataRecord>[]> GetDataReaderSettersCached;
+
+        private Action<T, IDataRecord>[] _GetDataReaderSetters(ReaderSettersFactoryPara para)
         {
+            var reader = para.Reader;
+
             Action<T, IDataRecord>[] setters = new Action<T, IDataRecord>[ColumnMappingList.Count];
 
             int i = 0;
@@ -52,15 +83,7 @@ namespace MagicEastern.ADOExt
             return setters;
         }
 
-        public Action<T, IDataRecord>[] GetDataReaderSetters(string sqltxt, IDataRecord reader)
-        {
-            return DataReaderSetterCache.GetOrAdd(sqltxt, (_) =>
-            {
-                return GetDataReaderSetters(reader);
-            });
-        }
-
-        public DBObjectMapping()
+        public DBObjectMapping(CachedFuncSvc cachedFuncSvc)
         {
             var columnMappingList = new List<IDBColumnMapping<T>>();
 
@@ -88,6 +111,9 @@ namespace MagicEastern.ADOExt
             }
 
             ColumnMappingList = columnMappingList;
+
+            GetDataReaderSettersCached = cachedFuncSvc.Create((Func<ReaderSettersFactoryPara, Action<T, IDataRecord>[]>)_GetDataReaderSetters
+                , (para) => new MemoryCacheEntryOptions { Priority = para.Sql.SchemaCachePriority, Size = 1 });
         }
     }
 }

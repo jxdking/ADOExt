@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -7,10 +8,7 @@ namespace MagicEastern.ADOExt
 {
     public class Sql
     {
-        private Dictionary<string, IDbDataParameter> parameters;
         private string text;
-
-        public object DynaParameters { get; private set; }
 
         public string Text
         {
@@ -22,26 +20,15 @@ namespace MagicEastern.ADOExt
             }
         }
 
-        public Dictionary<string, IDbDataParameter> Parameters
-        {
-            get
-            {
-                if (parameters == null)
-                {
-                    throw new InvalidOperationException("When Sql is initialized with Dynamic Object as the Parameters, Parameters dictionary" +
-                        " will not be available until the Sql is run.");
-                }
-                return parameters;
-            }
-            set
-            {
-                parameters = value;
-                DynaParameters = null;
-            }
-        }
-        public int CommandTimeout { get; set; } = 30;
-        public bool CacheDataReaderSchema { get; set; } = false;
-        public IDbCommand Command { get; set; }
+        public Dictionary<string, IDbDataParameter> Parameters { get; set; }
+      
+        public IDbCommand Command { get; private set; }
+
+        /// <summary>
+        /// When the sql is query command. Application will cache the DataReader's schema to speedup object mapping.
+        /// Set the priority of the cache.
+        /// </summary>
+        public CacheItemPriority SchemaCachePriority { get; set; } = CacheItemPriority.Low;
 
         protected virtual void Init(string cmdText, IEnumerable<IDbDataParameter> parameters)
         {
@@ -49,7 +36,7 @@ namespace MagicEastern.ADOExt
             {
                 throw new ArgumentNullException("sql text is required!");
             }
-            this.parameters = parameters.ToDictionary(i => i.ParameterName);
+            Parameters = parameters.ToDictionary(i => i.ParameterName);
             Text = cmdText;
         }
 
@@ -63,40 +50,37 @@ namespace MagicEastern.ADOExt
             Init(cmdText, parameters);
         }
 
-        public Sql(string cmdText, object parameters)
-        {
-            if (parameters is IEnumerable<IDbDataParameter> ps) {
-                Init(cmdText, ps);
-                return;
-            }
-            if (parameters is IDbDataParameter p) {
-                Init(cmdText, new IDbDataParameter[] { p });
-                return;
-            }
+        public void SetupCommand(IDbCommand command) {
+            foreach (var p in Parameters.Values.ToList()) {
+                if (p is Parameter) {
+                    // p has to be transformed to native Parameter type.
+                    var native = command.CreateParameter();
+                    native.ParameterName = p.ParameterName;
+                    native.Value = p.Value;
+                    native.Direction = p.Direction;
+                    Scrub(native);
+                    command.Parameters.Add(native);
+                    Parameters[p.ParameterName] = native;
+                    continue;
+                }
 
-            if (string.IsNullOrWhiteSpace(cmdText))
-            {
-                throw new ArgumentNullException("sql text is required!");
+                // p should be a native type, such as SqlParamter, or OracleParameter.
+                Scrub(p);
+                command.Parameters.Add(p);
             }
-            Text = cmdText;
-            DynaParameters = parameters;
+            Command = command;
         }
 
-        public IDbDataParameter[] ParseParameters(IDbCommand command)
+        private void Scrub(IDbDataParameter parameter)
         {
-            if (parameters != null)
+            if (parameter.Value == null)
             {
-                return parameters.Values.ToArray();
+                parameter.Value = DBNull.Value;
             }
-            var ps = DynaParameters.GetType().GetProperties().Select(i => {
-                var p = command.CreateParameter();
-                p.ParameterName = i.Name;
-                p.Direction = ParameterDirection.Input;
-                p.Value = i.GetValue(DynaParameters);
-                return p;
-            }).ToArray();
-            Parameters = ps.ToDictionary(i => i.ParameterName);
-            return ps;
+            if (parameter.Direction != ParameterDirection.Input)
+            {
+                parameter.Size = short.MaxValue; // remove the size limitation of the parameter.
+            }
         }
 
         public override string ToString()

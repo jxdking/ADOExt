@@ -17,7 +17,7 @@ namespace MagicEastern.ADOExt.Common.Oracle
         internal static Sql GenerateSql<T, TParameter>(T obj, string sqltxt, IEnumerable<IDBColumnMapping<T>> inputCols, IEnumerable<IDBColumnMapping<T>> returnCols)
             where TParameter : IDbDataParameter, new()
         {
-            var sql = new Sql(sqltxt, returnCols.Select(i => new TParameter
+            var sql = new Sql(sqltxt, returnCols.Select(i => (IDbDataParameter)new TParameter
             {
                 ParameterName = i.ColumnName,
                 Direction = System.Data.ParameterDirection.Output,

@@ -14,7 +14,7 @@ namespace MagicEastern.ADOExt
         /// <param name="reader"></param>
         /// <returns>These returned setters only set the values that are not DBNull. Thus, only use these setters on newly initialized object,
         /// so that untouched properties would have its default value.</returns>
-        Action<T, IDataRecord>[] GetDataReaderSetters(IDataRecord reader);
+        //Action<T, IDataRecord>[] GetDataReaderSetters(IDataRecord reader);
 
         /// <summary>
         /// The return value is cached with sqltxt as the key.
@@ -22,6 +22,6 @@ namespace MagicEastern.ADOExt
         /// <param name="sqltxt"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        Action<T, IDataRecord>[] GetDataReaderSetters(string sqltxt, IDataRecord reader);
+        Action<T, IDataRecord>[] GetDataReaderSetters(Sql sql, IDataRecord reader);
     }
 }

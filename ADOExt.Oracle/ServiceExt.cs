@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using MagicEastern.CachedFunc2;
+using Microsoft.Extensions.DependencyInjection;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Data;
@@ -7,8 +8,11 @@ namespace MagicEastern.ADOExt.Oracle
 {
     public static class ServiceExt
     {
-        public static IServiceCollection AddOracle(this IServiceCollection services, Func<IDbConnection> createConnection)
+        public static IServiceCollection AddOracle(this IServiceCollection services, Func<OracleConnection> createConnection)
         {
+            services.AddMemoryCache((opts) => { opts.SizeLimit = 10000; });
+            services.AddCachedFunc();
+
             services.AddSingleton(typeof(IDBObjectMapping<>), typeof(DBObjectMapping<>));
             services.AddSingleton(typeof(IDBTableMapping<>), typeof(DBTableMapping<>));
             services.AddSingleton(typeof(DBTableAdapterContext<>));
@@ -27,10 +31,10 @@ namespace MagicEastern.ADOExt.Oracle
                 {
                     var conn = createConnection();
                     conn.Open();
-                    return new DBConnectionWrapper(conn, sp.GetService<IDBService>(), () => {
-                        var cmd = new OracleCommand();
-                        cmd.BindByName = true;
-                        return cmd;
+                    return new DBConnectionWrapper(conn, sp.GetService<IDBService>()
+                        , () => new OracleCommand {
+                        BindByName = true,
+                        CommandTimeout = 30
                     });
                 };
             });

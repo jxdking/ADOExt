@@ -35,7 +35,7 @@ namespace MagicEastern.ADOExt.Common.SqlServer
             }
             string sqltxt = cols.Count == ColCount ? TemplateAllCol
                 : string.Format(Template, string.Join("],[", cols.Select(i => i.ColumnName)), "@" + string.Join(",@", cols.Select(i => i.ColumnName)));
-            return new Sql(sqltxt, cols.Select(i => new TParameter
+            return new Sql(sqltxt, cols.Select(i => (IDbDataParameter)new TParameter
             {
                 ParameterName = i.ColumnName,
                 Value = i.PropertyGetter(obj),

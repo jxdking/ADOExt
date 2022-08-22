@@ -54,7 +54,7 @@ namespace Test
                 int cnt = GetSingleValue(conn, trans);
                 var orderids = GetFirstColumn(conn, trans);
                 SalesOrderHeader order = Load(conn, orderids.First(), trans);
-                order = Load(conn, orderids.First(), trans);
+                order = Load(conn, orderids.Skip(1).First(), trans);
 
                 order = Insert(conn, trans);
 

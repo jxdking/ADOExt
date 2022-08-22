@@ -20,7 +20,7 @@ namespace MagicEastern.ADOExt
         {
             var sql = new Sql(Template, PkCols.Select(i =>
             {
-                var p = new TParameter();
+                IDbDataParameter p = new TParameter();
                 p.ParameterName = i.ColumnName;
                 p.Value = i.PropertyGetter(obj);
                 return p;

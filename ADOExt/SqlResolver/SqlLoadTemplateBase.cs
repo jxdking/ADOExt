@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
@@ -20,12 +21,12 @@ namespace MagicEastern.ADOExt
         {
             var sql = new Sql(Template, PkCols.Select(i =>
             {
-                var p = new TParameter();
+                IDbDataParameter p = new TParameter();
                 p.ParameterName = i.ColumnName;
                 p.Value = i.PropertyGetter(obj);
                 return p;
             }));
-            sql.CacheDataReaderSchema = true;
+            sql.SchemaCachePriority = CacheItemPriority.NeverRemove;
             return sql;
         }
     }
