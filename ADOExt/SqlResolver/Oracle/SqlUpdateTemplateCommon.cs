@@ -36,7 +36,8 @@ namespace MagicEastern.ADOExt.Common.Oracle
             var sql = Generate(obj, setCols);
             conn.Execute(sql, out var outParas, false, trans);
             var paraDic = outParas.ToDictionary(i => i.ParameterName, i => DBNull.Value.Equals(i.Value) ? null : i.Value);
-            result = context.AllColumnsInfo.Parse(paraDic);
+            result = ((int)paraDic["sql_nor"] == 0) ? default(T) : context.AllColumnsInfo.Parse(paraDic);
+            
             return (int)paraDic[SqlTemplateUtil.RowCountParaName];
         }
 

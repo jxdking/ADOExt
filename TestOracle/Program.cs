@@ -182,7 +182,7 @@ namespace TestOracle
         {
             Employee obj = new Employee
             {
-                EMPLOYEE_ID = 207,
+                EMPLOYEE_ID = 207, // 207
                 DEPARTMENT_ID = 50,
                 HIRE_DATE = DateTime.Now.AddDays(-1)
             };
