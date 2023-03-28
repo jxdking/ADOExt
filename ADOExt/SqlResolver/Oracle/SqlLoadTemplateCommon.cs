@@ -7,13 +7,8 @@ namespace MagicEastern.ADOExt.Common.Oracle
     public class SqlLoadTemplateCommon<T, TParameter> : SqlLoadTemplateBase<T, TParameter>
         where TParameter : IDbDataParameter, new()
     {
-        private SqlLoadTemplateCommon(IEnumerable<IDBColumnMapping<T>> pkCols, string template)
-           : base(pkCols, template)
-        {
-        }
-
         public SqlLoadTemplateCommon(DBTableAdapterContext<T> context, ISqlResolver sqlResolver) :
-            this(context.PkColumnsInfo, GetTemplateString(context, sqlResolver))
+            base(context.PkColumnsInfo, GetTemplateString(context, sqlResolver), sqlResolver)
         {
         }
 

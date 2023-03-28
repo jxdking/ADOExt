@@ -12,7 +12,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Kevin Jin</Authors>
     <Company />
-    <Version>3.11</Version>
+    <Version>3.13</Version>
     <Description>A simple object mapping library. A simple extenstion for IDbConnection and IDbTransaction.</Description>
     <PackageTags>ORM Database ADO.NET Extension</PackageTags>
     <AssemblyName>MagicEastern.ADOExt</AssemblyName>

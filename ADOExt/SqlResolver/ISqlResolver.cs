@@ -1,4 +1,7 @@
-﻿namespace MagicEastern.ADOExt
+﻿using System.Data;
+using System.Xml.Schema;
+
+namespace MagicEastern.ADOExt
 {
     /// <summary>
     /// as an extension anchor
@@ -11,5 +14,16 @@
         ISqlUpdateTemplate<T> GetUpdateTemplate<T>() where T : new();
         ISqlLoadTemplate<T> GetLoadTemplate<T>() where T : new();
         ISqlDeleteTemplate<T> GetDeleteTemplate<T>() where T : new();
+        void ConfigureParameter<T>(IDbDataParameter p, IDBTableColumnMapping<T> col, T obj, ParameterDirection direction);
+    }
+
+    public static class ISqlResolverExtension
+    {
+        public static TParameter CreateParameter<T, TParameter>(this ISqlResolver sqlResolver, IDBTableColumnMapping<T> col, T obj, ParameterDirection direction) where TParameter : IDbDataParameter, new()
+        {
+            TParameter p = new TParameter();
+            sqlResolver.ConfigureParameter(p, col, obj, direction);
+            return p;
+        }
     }
 }

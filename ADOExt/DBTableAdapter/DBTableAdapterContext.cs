@@ -4,10 +4,10 @@ namespace MagicEastern.ADOExt
 {
     public class DBTableAdapterContext<T>
     {
-        public readonly List<IDBColumnMapping<T>> InsertColumnsInfo;
-        public readonly List<IDBColumnMapping<T>> AllColumnsInfo;
-        public readonly List<IDBColumnMapping<T>> PkColumnsInfo;
-        public readonly List<IDBColumnMapping<T>> SetColumnsInfo;
+        public readonly List<IDBTableColumnMapping<T>> InsertColumnsInfo;
+        public readonly List<IDBTableColumnMapping<T>> AllColumnsInfo;
+        public readonly List<IDBTableColumnMapping<T>> PkColumnsInfo;
+        public readonly List<IDBTableColumnMapping<T>> SetColumnsInfo;
 
         public IDBTableMapping<T> Mapping = null;
 
@@ -15,10 +15,10 @@ namespace MagicEastern.ADOExt
         {
             Mapping = mapping;
 
-            var allColumnsInfo = new List<IDBColumnMapping<T>>();
-            var pkColumnsInfo = new List<IDBColumnMapping<T>>();
-            var insertColumnsInfo = new List<IDBColumnMapping<T>>();
-            var setColumnsInfo = new List<IDBColumnMapping<T>>();
+            var allColumnsInfo = new List<IDBTableColumnMapping<T>>();
+            var pkColumnsInfo = new List<IDBTableColumnMapping<T>>();
+            var insertColumnsInfo = new List<IDBTableColumnMapping<T>>();
+            var setColumnsInfo = new List<IDBTableColumnMapping<T>>();
         
             for (int i = 0; i < mapping.ColumnMappingList.Count; i++)
             {

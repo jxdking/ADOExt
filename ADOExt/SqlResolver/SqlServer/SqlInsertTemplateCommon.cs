@@ -7,6 +7,7 @@ namespace MagicEastern.ADOExt.Common.SqlServer
     public class SqlInsertTemplateCommon<T, TParameter> : SqlInsertTemplateBase<T>
         where TParameter : IDbDataParameter, new()
     {
+        private readonly ISqlResolver sqlResolver;
         private string Template;
         private string TemplateAllCol;
         private int ColCount;
@@ -18,28 +19,25 @@ namespace MagicEastern.ADOExt.Common.SqlServer
 
             TemplateAllCol = string.Format(Template, string.Join("],[", context.InsertColumnsInfo.Select(i => i.ColumnName)), "@" + string.Join(",@", context.InsertColumnsInfo.Select(i => i.ColumnName)));
             ColCount = context.InsertColumnsInfo.Count;
+            this.sqlResolver = sqlResolver;
         }
 
-        public override int Execute(T obj, IEnumerable<IDBColumnMapping<T>> setCols, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        public override int Execute(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
             var sql = Generate(obj, setCols);
             result = default(T);
             return conn.Execute(sql, false, trans);
         }
 
-        public override Sql Generate(T obj, IEnumerable<IDBColumnMapping<T>> setCols)
+        public override Sql Generate(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols)
         {
-            if (!(setCols is List<IDBColumnMapping<T>> cols))
+            if (!(setCols is List<IDBTableColumnMapping<T>> cols))
             {
                 cols = setCols.ToList();
             }
             string sqltxt = cols.Count == ColCount ? TemplateAllCol
                 : string.Format(Template, string.Join("],[", cols.Select(i => i.ColumnName)), "@" + string.Join(",@", cols.Select(i => i.ColumnName)));
-            return new Sql(sqltxt, cols.Select(i => (IDbDataParameter)new TParameter
-            {
-                ParameterName = i.ColumnName,
-                Value = i.PropertyGetter(obj),
-            }));
+            return new Sql(sqltxt, cols.Select(i => (IDbDataParameter)sqlResolver.CreateParameter<T, TParameter>(i, obj, ParameterDirection.Input)));
         }
     }
 }

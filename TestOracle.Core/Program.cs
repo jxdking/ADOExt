@@ -21,10 +21,29 @@ namespace TestOracle.Core
             services.AddOracle(() => new OracleConnection(connStr));
             var sp = services.BuildServiceProvider();
             db = sp.GetService<IDBService>();
-            TestOracle();
+            DebugIdAutoGen();
+            //TestOracle();
             Console.WriteLine("press any key to continue ...");
             Console.ReadKey();
         }
+
+        static void DebugIdAutoGen() 
+        {
+            Console.WriteLine("*** Testing auto-generated id returning ...");
+            using (var trans = db.BeginTransaction()) {
+                var atta = new Attachment
+                {
+                    ID = -1,
+                    FILENAME = "AAA",
+                    CONTENT = "AAAA"
+                };
+                trans.Insert(atta, null, out Attachment res);
+                Console.WriteLine($"New attachment has been inserted. The returning id={res.ID}");
+
+                trans.Commit();
+            }
+        }
+
 
         static void TestOracle()
         {

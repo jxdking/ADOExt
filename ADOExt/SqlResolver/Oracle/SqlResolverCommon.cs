@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
+using System.Runtime.CompilerServices;
 
 namespace MagicEastern.ADOExt.Common.Oracle
 {
@@ -52,5 +54,9 @@ namespace MagicEastern.ADOExt.Common.Oracle
             sqltxt = string.Format(sqltxt, "", "");
             return new Sql(sqltxt, new TParameter { ParameterName = "tablename", Value = table.ToUpper() });
         }
+
+       
     }
+
+
 }

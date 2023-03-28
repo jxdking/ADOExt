@@ -7,13 +7,8 @@ namespace MagicEastern.ADOExt.Common.SqlServer
     public class SqlDeleteTemplateCommon<T, TParameter> : SqlDeleteTemplateBase<T, TParameter>
         where TParameter : IDbDataParameter, new()
     {
-        private SqlDeleteTemplateCommon(IEnumerable<IDBColumnMapping<T>> pkCols, string template)
-         : base(pkCols, template)
-        {
-        }
-
         public SqlDeleteTemplateCommon(DBTableAdapterContext<T> context, ISqlResolver sqlResolver) :
-            this(context.PkColumnsInfo, GetTemplateString(context, sqlResolver))
+            base(context.PkColumnsInfo, GetTemplateString(context, sqlResolver), sqlResolver)
         {
         }
 

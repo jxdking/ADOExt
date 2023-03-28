@@ -26,12 +26,11 @@ namespace MagicEastern.ADOExt
 
     public static class IDBColumnMappingExt
     {
-        public static T Parse<T>(this List<IDBColumnMapping<T>> mapping, Dictionary<string, object> colNameAndValue) where T : new()
+        public static T Parse<T>(this IEnumerable<IDBColumnMapping<T>> mapping, Dictionary<string, object> colNameAndValue) where T : new()
         {
             var result = new T();
-            for (int i = 0; i < mapping.Count; i++)
-            {
-                var c = mapping[i];
+            foreach (var c in mapping)
+            {   
                 if (colNameAndValue.TryGetValue(c.ColumnName, out var val))
                 {
                     c.PropertySetter(result, val);

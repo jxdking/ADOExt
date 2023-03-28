@@ -28,8 +28,7 @@ namespace MagicEastern.ADOExt
         {
             for (int i = 0; i < AllColumnsInfo.Count; i++)
             {
-                var ci = AllColumnsInfo[i];
-                var col = (IDBTableColumnMapping<T>)ci;
+                var col = AllColumnsInfo[i];
                 PropertyInfo property = col.ObjectProperty;
                 if (property.PropertyType.Equals(typeof(string)) && col.DataType != "CLOB" && col.CharLength > 0)
                 {
@@ -61,9 +60,9 @@ namespace MagicEastern.ADOExt
             return conn.Query<T>(sql, trans).FirstOrDefault();
         }
 
-        private IEnumerable<IDBColumnMapping<T>> GetSetColumns(IEnumerable<IDBColumnMapping<T>> all, object properties, string operation)
+        private IEnumerable<IDBTableColumnMapping<T>> GetSetColumns(IEnumerable<IDBTableColumnMapping<T>> all, object properties, string operation)
         {
-            IEnumerable<IDBColumnMapping<T>> setCols = all;
+            IEnumerable<IDBTableColumnMapping<T>> setCols = all;
             if (properties != null)
             {
                 var hash = new HashSet<string>(properties.GetType().GetProperties().Select(i => i.Name));

@@ -9,23 +9,20 @@ namespace MagicEastern.ADOExt
         where TParameter : IDbDataParameter, new()
     {
         private string Template;
-        private IEnumerable<IDBColumnMapping<T>> PkCols;
+        private readonly ISqlResolver sqlResolver;
+        private IEnumerable<IDBTableColumnMapping<T>> PkCols;
 
-        public SqlLoadTemplateBase(IEnumerable<IDBColumnMapping<T>> pkCols, string template)
+        public SqlLoadTemplateBase(IEnumerable<IDBTableColumnMapping<T>> pkCols, string template, ISqlResolver sqlResolver)
         {
             PkCols = pkCols;
             Template = template;
+            this.sqlResolver = sqlResolver;
         }
 
         public Sql Generate(T obj)
         {
             var sql = new Sql(Template, PkCols.Select(i =>
-            {
-                IDbDataParameter p = new TParameter();
-                p.ParameterName = i.ColumnName;
-                p.Value = i.PropertyGetter(obj);
-                return p;
-            }));
+                (IDbDataParameter)sqlResolver.CreateParameter<T, TParameter>(i, obj, ParameterDirection.Input)));
             sql.SchemaCachePriority = CacheItemPriority.NeverRemove;
             return sql;
         }
