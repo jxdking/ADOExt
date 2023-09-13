@@ -49,6 +49,8 @@ namespace MagicEastern.ADOExt
                     // TODO: dispose managed state (managed objects).
                     Transaction.Dispose();
                     Transaction = null;
+                    Connection?.Dispose();
+                    Connection = null;
                 }
                 disposedValue = true;
             }
