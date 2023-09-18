@@ -9,4 +9,6 @@
         int? DataScale { get; }
         bool PK { get; }
     }
+
+
 }

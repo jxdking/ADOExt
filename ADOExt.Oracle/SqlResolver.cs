@@ -12,7 +12,7 @@ namespace MagicEastern.ADOExt.Oracle
         {
         }
 
-        public override void ConfigureParameter<T>(IDbDataParameter p, IDBTableColumnMapping<T> col, T obj, ParameterDirection direction)
+        public override void ConfigureParameter<T>(IDbDataParameter p, IDBTableColumnMapping<T> col, T obj, ParameterDirection direction, string parameterSuffix = null)
         {
             if (!(p is OracleParameter oraclePara))
             {
@@ -24,7 +24,7 @@ namespace MagicEastern.ADOExt.Oracle
                 { "NCLOB", OracleDbType.NClob }
             };
 
-            base.ConfigureParameter(oraclePara, col, obj, direction);
+            base.ConfigureParameter(oraclePara, col, obj, direction, parameterSuffix);
 
             if (mapping.TryGetValue(col.DataType, out OracleDbType ot))
             {

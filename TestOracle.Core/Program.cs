@@ -1,5 +1,5 @@
 ﻿using MagicEastern.ADOExt;
-using MagicEastern.ADOExt.Oracle.Core;
+using MagicEastern.ADOExt.Oracle.Core.Lite;
 using Microsoft.Extensions.DependencyInjection;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -21,8 +21,8 @@ namespace TestOracle.Core
             services.AddOracle(() => new OracleConnection(connStr));
             var sp = services.BuildServiceProvider();
             db = sp.GetService<IDBService>();
-            DebugIdAutoGen();
-            //TestOracle();
+            //DebugIdAutoGen();
+            TestOracle();
             Console.WriteLine("press any key to continue ...");
             Console.ReadKey();
         }
@@ -66,7 +66,7 @@ namespace TestOracle.Core
                 //sert2(conn, trans);
 
                 trans.Rollback();
-                conn.Close();
+                
             }
         }
 
@@ -201,7 +201,7 @@ namespace TestOracle.Core
             Console.WriteLine(ret + " rows updated");
             if (ret > 0)
             {
-                Console.WriteLine("The first name of the updated record is " + res.FIRST_NAME);
+                //Console.WriteLine("The first name of the updated record is " + res.FIRST_NAME);
             }
             return obj;
         }

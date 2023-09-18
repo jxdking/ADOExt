@@ -2,6 +2,6 @@
 {
     public interface ISqlDeleteTemplate<T>
     {
-        Sql Generate(T obj);
+        Sql Generate(T obj, string parameterSuffix = null);
     }
 }

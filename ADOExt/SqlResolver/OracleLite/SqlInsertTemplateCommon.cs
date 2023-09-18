@@ -1,18 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace MagicEastern.ADOExt.Common.SqlServer
+
+namespace MagicEastern.ADOExt.Common.OracleLite
 {
     public class SqlInsertTemplateCommon<T, TParameter> : SqlInsertTemplateBase<T>
         where TParameter : IDbDataParameter, new()
+        where T : new()
     {
         private readonly ISqlResolver sqlResolver;
-        private string tablename;
+        private string tableName;
 
         public SqlInsertTemplateCommon(DBTableAdapterContext<T> context, ISqlResolver sqlResolver)
         {
-            tablename = sqlResolver.GetTableName(context.Mapping.TableName, context.Mapping.Schema);
+            tableName = sqlResolver.GetTableName(context.Mapping.TableName, context.Mapping.Schema);
             this.sqlResolver = sqlResolver;
         }
 
@@ -24,8 +27,8 @@ namespace MagicEastern.ADOExt.Common.SqlServer
             {
                 cols = setCols.ToList();
             }
-            
-            string sqltxt = $"insert into {tablename} ([{string.Join("],[", cols.Select(i => i.ColumnName))}]) values (@{string.Join(",@", cols.Select(i => i.ColumnName + parameterSuffix))})" ;
+
+            string sqltxt = $"insert into {tableName} ({string.Join(",", cols.Select(i => i.ColumnName))}) values (:{string.Join(",:", cols.Select(i => i.ColumnName + parameterSuffix))})";
             return new Sql(sqltxt, cols.Select(i => (IDbDataParameter)sqlResolver.CreateParameter<T, TParameter>(i, obj, ParameterDirection.Input, parameterSuffix)));
         }
     }

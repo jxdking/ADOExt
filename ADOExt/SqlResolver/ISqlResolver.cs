@@ -14,15 +14,15 @@ namespace MagicEastern.ADOExt
         ISqlUpdateTemplate<T> GetUpdateTemplate<T>() where T : new();
         ISqlLoadTemplate<T> GetLoadTemplate<T>() where T : new();
         ISqlDeleteTemplate<T> GetDeleteTemplate<T>() where T : new();
-        void ConfigureParameter<T>(IDbDataParameter p, IDBTableColumnMapping<T> col, T obj, ParameterDirection direction);
+        void ConfigureParameter<T>(IDbDataParameter p, IDBTableColumnMapping<T> col, T obj, ParameterDirection direction, string parameterSuffix = null);
     }
 
     public static class ISqlResolverExtension
     {
-        public static TParameter CreateParameter<T, TParameter>(this ISqlResolver sqlResolver, IDBTableColumnMapping<T> col, T obj, ParameterDirection direction) where TParameter : IDbDataParameter, new()
+        public static TParameter CreateParameter<T, TParameter>(this ISqlResolver sqlResolver, IDBTableColumnMapping<T> col, T obj, ParameterDirection direction, string parameterSuffix = null) where TParameter : IDbDataParameter, new()
         {
             TParameter p = new TParameter();
-            sqlResolver.ConfigureParameter(p, col, obj, direction);
+            sqlResolver.ConfigureParameter(p, col, obj, direction, parameterSuffix);
             return p;
         }
     }

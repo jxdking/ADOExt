@@ -8,7 +8,7 @@ namespace MagicEastern.ADOExt.Common.Oracle
 {
     public class SqlInsertTemplateCommon<T, TParameter> : SqlInsertTemplateBase<T>
         where TParameter : IDbDataParameter, new()
-        where T: new()
+        where T : new()
     {
         private readonly DBTableAdapterContext<T> context;
         private readonly ISqlResolver sqlResolver;
@@ -37,13 +37,19 @@ namespace MagicEastern.ADOExt.Common.Oracle
             var sql = Generate(obj, setCols);
             conn.Execute(sql, out var outParas, false, trans);
             var paraDic = outParas.ToDictionary(i => i.ParameterName, i => DBNull.Value.Equals(i.Value) ? null : i.Value);
-           
+
             result = context.AllColumnsInfo.Parse(paraDic);
             return (int)paraDic[SqlTemplateUtil.RowCountParaName];
         }
 
-        public override Sql Generate(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols)
+        public override Sql Generate(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols, string parameterSuffix = null)
         {
+            if (!string.IsNullOrWhiteSpace(parameterSuffix))
+            {
+                throw new NotSupportedException("Not null parameterSuffix is not supported.");
+            }
+
+
             if (!(setCols is List<IDBTableColumnMapping<T>> cols))
             {
                 cols = setCols.ToList();

@@ -40,23 +40,35 @@ namespace MagicEastern.ADOExt
             }
         }
 
-        public virtual int Delete(T obj, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        public virtual Sql GetDeleteSql(T obj, string parameterSuffix = null)
         {
             if (DeleteCommand == null)
             {
                 throw new NotSupportedException("Delete is not support for this [" + typeof(T).FullName + "], make sure you have primary key defined in Entity Metadata for this type.");
             }
-            var sql = DeleteCommand.Generate(obj);
+            var sql = DeleteCommand.Generate(obj, parameterSuffix);
+            return sql;
+        }
+
+        public virtual int Delete(T obj, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        {
+            var sql = GetDeleteSql(obj);
             return conn.Execute(sql, false, trans);
         }
 
-        public virtual T Load(T obj, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        private Sql GetLoadSql(T obj)
         {
             if (LoadCommand == null)
             {
                 throw new NotSupportedException("Load is not support for this [" + typeof(T).FullName + "], make sure you have primary key defined in Entity Metadata for this type.");
             }
             var sql = LoadCommand.Generate(obj);
+            return sql;
+        }
+
+        public virtual T Load(T obj, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        {
+            var sql = GetLoadSql(obj);
             return conn.Query<T>(sql, trans).FirstOrDefault();
         }
 
@@ -76,9 +88,23 @@ namespace MagicEastern.ADOExt
             return setCols;
         }
 
+        public virtual Sql GetInsertSql(T obj, object properties, string parameterSuffix = null)
+        {
+            return InsertCommand.Generate(obj, GetSetColumns(InsertColumnsInfo, properties, "Insert()"), parameterSuffix);
+        }
+
         public virtual int Insert(T obj, object properties, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans)
         {
             return InsertCommand.Execute(obj, GetSetColumns(InsertColumnsInfo, properties, "Insert()"), out result, conn, trans);
+        }
+
+        public virtual Sql GetUpdateSql(T obj, object properties, string parameterSuffix = null)
+        {
+            if (UpdateCommand == null)
+            {
+                throw new NotSupportedException("Update is not support for this [" + typeof(T).FullName + "], make sure you have primary key defined in Entity Metadata for this type.");
+            }
+            return UpdateCommand.Generate(obj, GetSetColumns(SetColumnsInfo, properties, "Update()"), parameterSuffix);
         }
 
         public virtual int Update(T obj, object properties, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans)
@@ -89,6 +115,5 @@ namespace MagicEastern.ADOExt
             }
             return UpdateCommand.Execute(obj, GetSetColumns(SetColumnsInfo, properties, "Update()"), out result, conn, trans);
         }
-
     }
 }

@@ -14,17 +14,18 @@ namespace MagicEastern.ADOExt.Common.Oracle
             return returningCols;
         }
 
-        internal static Sql GenerateSql<T, TParameter>(T obj, string sqltxt, IEnumerable<IDBTableColumnMapping<T>> inputCols, IEnumerable<IDBTableColumnMapping<T>> returnCols, ISqlResolver sqlResolver)
+        internal static Sql GenerateSql<T, TParameter>(T obj, string sqltxt, IEnumerable<IDBTableColumnMapping<T>> inputCols, IEnumerable<IDBTableColumnMapping<T>> returnCols
+            , ISqlResolver sqlResolver, string parameterSuffix = null)
             where TParameter : IDbDataParameter, new()
         {
-            var sql = new Sql(sqltxt, returnCols.Select(i => (IDbDataParameter)sqlResolver.CreateParameter<T, TParameter>(i, obj, ParameterDirection.Output)));
+            var sql = new Sql(sqltxt, returnCols.Select(i => (IDbDataParameter)sqlResolver.CreateParameter<T, TParameter>(i, obj, ParameterDirection.Output, parameterSuffix)));
 
             foreach (var c in inputCols)
             {
-                if (sql.Parameters.TryGetValue(c.ColumnName, out var p)) {
-                    sqlResolver.ConfigureParameter(p, c, obj, ParameterDirection.InputOutput);
+                if (sql.Parameters.TryGetValue(c.ColumnName + parameterSuffix, out var p)) {
+                    sqlResolver.ConfigureParameter(p, c, obj, ParameterDirection.InputOutput, parameterSuffix);
                 } else {
-                    p = sqlResolver.CreateParameter<T, TParameter>(c, obj, ParameterDirection.Input);
+                    p = sqlResolver.CreateParameter<T, TParameter>(c, obj, ParameterDirection.Input, parameterSuffix);
                     sql.Parameters.Add(p);
                 }
             }

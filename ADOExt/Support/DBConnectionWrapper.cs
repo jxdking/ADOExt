@@ -32,7 +32,7 @@ namespace MagicEastern.ADOExt
 
         public void Close()
         {
-            Connection.Close();
+            Connection?.Close();
         }
 
         #region IDisposable Support

@@ -1,22 +1,35 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Xml;
 
 namespace MagicEastern.ADOExt.Common.Oracle
 {
     public class SqlDeleteTemplateCommon<T, TParameter> : SqlDeleteTemplateBase<T, TParameter>
         where TParameter : IDbDataParameter, new()
     {
-        public SqlDeleteTemplateCommon(DBTableAdapterContext<T> context, ISqlResolver sqlResolver) :
-            base(context.PkColumnsInfo, GetTemplateString(context, sqlResolver), sqlResolver)
+        private DBTableAdapterContext<T> tableContext;
+        private string tableName;
+        private ISqlResolver sqlResolver;
+
+        public SqlDeleteTemplateCommon(DBTableAdapterContext<T> context, ISqlResolver sqlResolver) 
         {
+            tableContext = context;
+            tableName = sqlResolver.GetTableName(context.Mapping.TableName, context.Mapping.Schema);
+            this.sqlResolver = sqlResolver;
         }
 
-        private static string GetTemplateString(DBTableAdapterContext<T> context, ISqlResolver sqlResolver)
+        private string GetTemplateString(string parameterSuffix = null)
         {
-            var tablename = sqlResolver.GetTableName(context.Mapping.TableName, context.Mapping.Schema);
-            var template = "delete from " + tablename + " where " + string.Join(" and ", context.PkColumnsInfo.Select(i => i.ColumnName + "=:" + i.ColumnName));
+            var template = "delete from " + tableName + " where " + string.Join(" and ", tableContext.PkColumnsInfo.Select(i => i.ColumnName + "=:" + i.ColumnName + parameterSuffix));
             return template;
+        }
+
+        public override Sql Generate(T obj, string parameterSuffix = null)
+        {
+            var sql = new Sql(GetTemplateString(parameterSuffix), tableContext.PkColumnsInfo.Select(i =>
+                (IDbDataParameter)sqlResolver.CreateParameter<T, TParameter>(i, obj, ParameterDirection.Input, parameterSuffix)));
+            return sql;
         }
     }
 }

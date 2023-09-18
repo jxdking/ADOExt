@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace MagicEastern.ADOExt.Common.Oracle
 {
-    public class SqlUpdateTemplateCommon<T, TParameter> : SqlUpdateTemplateBase<T> 
+    public class SqlUpdateTemplateCommon<T, TParameter> : SqlUpdateTemplateBase<T>
         where T : new()
         where TParameter : IDbDataParameter, new()
     {
@@ -16,7 +16,7 @@ namespace MagicEastern.ADOExt.Common.Oracle
         private int ColCount;
         private List<IDBTableColumnMapping<T>> ReturnCols;
 
-        public SqlUpdateTemplateCommon(DBTableAdapterContext<T> context, ISqlResolver sqlResolver) 
+        public SqlUpdateTemplateCommon(DBTableAdapterContext<T> context, ISqlResolver sqlResolver)
         {
             var tablename = sqlResolver.GetTableName(context.Mapping.TableName, context.Mapping.Schema);
             ReturnCols = SqlTemplateUtil.GetReturningCols(context).ToList();
@@ -39,18 +39,23 @@ namespace MagicEastern.ADOExt.Common.Oracle
             conn.Execute(sql, out var outParas, false, trans);
             var paraDic = outParas.ToDictionary(i => i.ParameterName, i => DBNull.Value.Equals(i.Value) ? null : i.Value);
             result = ((int)paraDic["sql_nor"] == 0) ? default(T) : context.AllColumnsInfo.Parse(paraDic);
-            
+
             return (int)paraDic[SqlTemplateUtil.RowCountParaName];
         }
 
-        public override Sql Generate(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols)
+        public override Sql Generate(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols, string parameterSuffix = null)
         {
+            if (!string.IsNullOrWhiteSpace(parameterSuffix))
+            {
+                throw new NotSupportedException("Not null parameterSuffix is not supported.");
+            }
+
             if (!(setCols is List<IDBTableColumnMapping<T>> cols))
             {
                 cols = setCols.ToList();
             }
             var sqltxt = cols.Count == ColCount ? TemplateAllCol
-                : string.Format(Template, string.Join(",", cols.Select(i => string.Join("", new string[] { i.ColumnName, "=:", i.ColumnName }))));
+                : string.Format(Template, string.Join(",", cols.Select(i => i.ColumnName + "=:" + i.ColumnName)));
             return SqlTemplateUtil.GenerateSql<T, TParameter>(obj, sqltxt, cols.Concat(context.PkColumnsInfo), ReturnCols, sqlResolver);
         }
     }

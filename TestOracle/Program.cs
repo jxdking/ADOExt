@@ -5,7 +5,7 @@
  */
 
 using MagicEastern.ADOExt;
-using MagicEastern.ADOExt.Oracle;
+using MagicEastern.ADOExt.Oracle.Lite;
 using Microsoft.Extensions.DependencyInjection;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -191,7 +191,7 @@ namespace TestOracle
             Console.WriteLine(ret + " rows updated");
             if (ret > 0)
             {
-                Console.WriteLine("The first name of the updated record is " + res.FIRST_NAME);
+                //Console.WriteLine("The first name of the updated record is " + res.FIRST_NAME);
             }
             return obj;
         }

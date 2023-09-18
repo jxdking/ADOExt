@@ -4,8 +4,13 @@ namespace MagicEastern.ADOExt
 {
     public abstract class SqlInsertTemplateBase<T> : ISqlInsertTemplate<T>
     {
-        public abstract Sql Generate(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols);
+        public abstract Sql Generate(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols, string parameterSuffix = null);
 
-        public abstract int Execute(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans);
+        public virtual int Execute(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        {
+            var sql = Generate(obj, setCols);
+            result = default(T);
+            return conn.Execute(sql, false, trans);
+        }
     }
 }

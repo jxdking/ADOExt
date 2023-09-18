@@ -19,9 +19,9 @@ namespace MagicEastern.ADOExt
 
         public abstract Sql ColumnMetaDataFromTable(string table, string schema);
         public abstract string GetTableName(string table, string schema);
-        public virtual void ConfigureParameter<T>(IDbDataParameter p, IDBTableColumnMapping<T> col, T obj, ParameterDirection direction) {
+        public virtual void ConfigureParameter<T>(IDbDataParameter p, IDBTableColumnMapping<T> col, T obj, ParameterDirection direction, string parameterSuffix = null) {
             p.DbType = col.DbType;
-            p.ParameterName = col.ColumnName;
+            p.ParameterName = col.ColumnName + parameterSuffix;
             p.Direction = direction;
 
             if (direction == ParameterDirection.Input || direction == ParameterDirection.InputOutput)

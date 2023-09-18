@@ -127,7 +127,11 @@ namespace Test
                 Rowguid = Guid.NewGuid(),
                 ModifiedDate = DateTime.Now
             };
-            int nor = conn.Insert(order, null, trans);
+            
+            var sql = conn.DBService.GetInsertSql<SalesOrderHeader>(order, null, "_1");
+            int nor = conn.Execute(sql, false, trans);
+
+            //int nor = conn.Insert(order, null, trans);
             var id = conn.GetSingleValue<int>("SELECT @@IDENTITY", trans);
             order.SalesOrderId = id;
             Console.WriteLine(nor + " record inserted.");
