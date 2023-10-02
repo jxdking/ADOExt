@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>3.10</Version>
+    <Version>3.21</Version>
     <Authors>Kevin Jin</Authors>
     <Company />
     <Description>A simple object mapping library. A simple extenstion for IDbConnection and IDbTransaction.</Description>
@@ -18,7 +18,8 @@
     <RootNamespace>MagicEastern.ADOExt.SqlServer</RootNamespace>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageProjectUrl></PackageProjectUrl>
-    <AssemblyVersion>3.10.0.0</AssemblyVersion>
+    <AssemblyVersion></AssemblyVersion>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>

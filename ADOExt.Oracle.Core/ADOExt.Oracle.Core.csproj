@@ -8,6 +8,7 @@
     <PackageTags>ORM Database ADO.NET Extension</PackageTags>
     <AssemblyName>MagicEastern.ADOExt.Oracle.Core</AssemblyName>
     <RootNamespace>MagicEastern.ADOExt.Oracle.Core</RootNamespace>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>

@@ -17,6 +17,7 @@
     <PackageTags>ORM Database ADO.NET Extension</PackageTags>
     <AssemblyName>MagicEastern.ADOExt</AssemblyName>
     <RootNamespace>MagicEastern.ADOExt</RootNamespace>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
