@@ -6,11 +6,11 @@ namespace MagicEastern.ADOExt
     {
         public abstract Sql Generate(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols, string parameterSuffix = null);
 
-        public virtual int Execute(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        public virtual int Execute(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols, out T result, DBConnectionWrapper conn)
         {
             var sql = Generate(obj, setCols);
             result = default(T);
-            return conn.Execute(sql, false, trans);
+            return conn.Execute(sql, false);
         }
     }
 }

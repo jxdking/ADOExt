@@ -26,7 +26,17 @@ namespace MagicEastern.ADOExt
             using (var conn = openConnection())
             {
                 var qry = conn.Query<DBTableMetadata>(sql);
-                var metadatas = qry.ToDictionary(i => i.COLUMN_NAME.ToUpper());
+
+                Dictionary<string, DBTableMetadata> metadatas;
+                try
+                {
+                    metadatas = qry.ToDictionary(i => i.COLUMN_NAME.ToUpper());
+                }
+                catch (ArgumentException ex)
+                {
+                    throw new ArgumentException($"Duplicated records found for [table:{TableName}], [schema:{Schema}]. Make sure you have defined the [schema] to avoid ambiguous.", ex);
+                }
+
                 ColumnMappingList = mapping.ColumnMappingList
                     .Select(i =>
                     {

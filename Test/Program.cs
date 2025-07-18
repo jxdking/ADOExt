@@ -46,34 +46,34 @@ namespace Test
             Console.WriteLine("*** Testing SqlServer Library...");
             using (var conn = rp.OpenConnection())
             {
-                var trans = conn.BeginTransaction();
+                conn.BeginTransaction();
 
                 for (int i = 0; i < 10; i++) {
-                    var orders = Query(conn, trans);
+                    var orders = Query(conn);
                 }
-                int cnt = GetSingleValue(conn, trans);
-                var orderids = GetFirstColumn(conn, trans);
-                SalesOrderHeader order = Load(conn, orderids.First(), trans);
-                order = Load(conn, orderids.Skip(1).First(), trans);
+                int cnt = GetSingleValue(conn);
+                var orderids = GetFirstColumn(conn);
+                SalesOrderHeader order = Load(conn, orderids.First());
+                order = Load(conn, orderids.Skip(1).First());
 
-                order = Insert(conn, trans);
+                order = Insert(conn);
 
-                Update(conn, order, trans);
-                cnt = Delete(conn, order, trans);
+                Update(conn, order);
+                cnt = Delete(conn, order);
 
-                trans.Rollback();
+                conn.Rollback();
             }
         }
 
         static Sql querysql = "SELECT [SalesOrderID],[RevisionNumber],[OrderDate],[DueDate],[ShipDate],[Status],[OnlineOrderFlag],[SalesOrderNumber],[PurchaseOrderNumber],[AccountNumber],[CustomerID],[SalesPersonID],[TerritoryID],[BillToAddressID],[ShipToAddressID],[ShipMethodID],[CreditCardID],[CreditCardApprovalCode],[CurrencyRateID],[SubTotal],[TaxAmt],[Freight],[TotalDue],[Comment],[rowguid],[ModifiedDate] FROM [Sales].[SalesOrderHeader]";
 
 
-        static IEnumerable<SalesOrderHeader> Query(DBConnectionWrapper conn, DBTransactionWrapper trans)
+        static IEnumerable<SalesOrderHeader> Query(DBConnectionWrapper conn)
         {
             Stopwatch sw = new Stopwatch();
             //var ds = conn.Query(querysql, trans);
             sw.Start();
-            var ret = conn.Query<SalesOrderHeader>(querysql, trans).ToList();
+            var ret = conn.Query<SalesOrderHeader>(querysql).ToList();
             sw.Stop();
             Console.WriteLine($"Query {ret.Count} lines in {sw.ElapsedMilliseconds}ms");
             //var t = ret.Last();
@@ -84,30 +84,30 @@ namespace Test
             return ret;
         }
 
-        static int GetSingleValue(DBConnectionWrapper conn, DBTransactionWrapper trans = null)
+        static int GetSingleValue(DBConnectionWrapper conn)
         {
             string sql = "SELECT count(*) FROM [Sales].[SalesOrderHeader]";
-            var ret = conn.GetSingleValue<int>(sql, trans);
+            var ret = conn.GetSingleValue<int>(sql);
             Console.WriteLine("Total " + ret + " records in table.");
             return ret;
         }
 
-        static IEnumerable<int> GetFirstColumn(DBConnectionWrapper conn, DBTransactionWrapper trans = null)
+        static IEnumerable<int> GetFirstColumn(DBConnectionWrapper conn)
         {
             string sql = "SELECT SalesOrderID FROM [Sales].[SalesOrderHeader]";
-            var ret = conn.GetFirstColumn<int>(sql, trans).ToList();
+            var ret = conn.GetFirstColumn<int>(sql).ToList();
             Console.WriteLine("Queried " + ret.Count() + " lines of first column.");
             return ret;
         }
 
-        static SalesOrderHeader Load(DBConnectionWrapper conn, int orderid, DBTransactionWrapper trans = null)
+        static SalesOrderHeader Load(DBConnectionWrapper conn, int orderid)
         {
-            var ret = conn.Load(new SalesOrderHeader { SalesOrderId = orderid }, trans);
+            var ret = conn.Load(new SalesOrderHeader { SalesOrderId = orderid });
             Console.WriteLine("Sales Order Number of loaded record is " + ret.SalesOrderNumber);
             return ret;
         }
 
-        static SalesOrderHeader Insert(DBConnectionWrapper conn, DBTransactionWrapper trans = null)
+        static SalesOrderHeader Insert(DBConnectionWrapper conn)
         {
             SalesOrderHeader order = new SalesOrderHeader
             {
@@ -129,29 +129,29 @@ namespace Test
             };
             
             var sql = conn.DBService.GetInsertSql<SalesOrderHeader>(order, null, "_1");
-            int nor = conn.Execute(sql, false, trans);
+            int nor = conn.Execute(sql, false);
 
             //int nor = conn.Insert(order, null, trans);
-            var id = conn.GetSingleValue<int>("SELECT @@IDENTITY", trans);
+            var id = conn.GetSingleValue<int>("SELECT @@IDENTITY");
             order.SalesOrderId = id;
             Console.WriteLine(nor + " record inserted.");
             return order;
         }
 
-        static int Delete(DBConnectionWrapper conn, SalesOrderHeader obj, DBTransactionWrapper trans = null)
+        static int Delete(DBConnectionWrapper conn, SalesOrderHeader obj)
         {
-            return conn.Delete(obj, trans);
+            return conn.Delete(obj);
         }
 
-        static void Update(DBConnectionWrapper conn, SalesOrderHeader obj, DBTransactionWrapper trans = null)
+        static void Update(DBConnectionWrapper conn, SalesOrderHeader obj)
         {
-            int nor = conn.Update(obj, trans: trans);
+            int nor = conn.Update(obj);
             Console.WriteLine(nor + " line updated.");
             var obj2 = new SalesOrderHeader();
             obj2.SalesOrderId = obj.SalesOrderId;
             obj2.ModifiedDate = DateTime.Now;
             obj2.Status = 2;
-            nor = conn.Update(obj2, new { obj2.ModifiedDate, obj2.Status }, trans);
+            nor = conn.Update(obj2, new { obj2.ModifiedDate, obj2.Status });
             Console.WriteLine(nor + " line updated (only update ModifiedDate and Status).");
         }
     }

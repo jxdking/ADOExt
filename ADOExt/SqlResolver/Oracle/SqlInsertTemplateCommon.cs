@@ -32,10 +32,10 @@ namespace MagicEastern.ADOExt.Common.Oracle
             this.sqlResolver = sqlResolver;
         }
 
-        public override int Execute(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        public override int Execute(T obj, IEnumerable<IDBTableColumnMapping<T>> setCols, out T result, DBConnectionWrapper conn)
         {
             var sql = Generate(obj, setCols);
-            conn.Execute(sql, out var outParas, false, trans);
+            conn.Execute(sql, out var outParas, false);
             var paraDic = outParas.ToDictionary(i => i.ParameterName, i => DBNull.Value.Equals(i.Value) ? null : i.Value);
 
             result = context.AllColumnsInfo.Parse(paraDic);

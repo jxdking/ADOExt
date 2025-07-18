@@ -53,19 +53,19 @@ namespace TestOracle.Core
             //Insert2(connStr);
             using (var conn = rp.OpenConnection())
             {
-                var trans = conn.BeginTransaction();
-                var recs = QueryOracle(conn, trans);
-                int nor = GetSingleValue(conn, trans);
-                var firstcol = GetFirstColumn(conn, trans);
-                var emp = Load(conn, trans);
-                var emp2 = Load(conn, trans);
-                var inserted = Insert(conn, trans);
+                conn.BeginTransaction();
+                var recs = QueryOracle(conn);
+                int nor = GetSingleValue(conn);
+                var firstcol = GetFirstColumn(conn);
+                var emp = Load(conn);
+                var emp2 = Load(conn);
+                var inserted = Insert(conn);
                 //Update0(inserted, conn, trans);
-                var updated = Update(conn, trans);
-                nor = Delete(conn, trans);
+                var updated = Update(conn);
+                nor = Delete(conn);
                 //sert2(conn, trans);
 
-                trans.Rollback();
+                conn.Rollback();
                 
             }
         }
@@ -110,11 +110,11 @@ namespace TestOracle.Core
                 var rp = db;
                 using (var conn = rp.OpenConnection())
                 {
-                    var trans = conn.BeginTransaction();
+                    conn.BeginTransaction();
                     Sql sql = new Sql(sqltxt, new OracleParameter { ParameterName = "LAST_NAME", Value = "Jin", Direction = ParameterDirection.InputOutput });
-                    trans.Execute(sql, false);
+                    conn.Execute(sql, false);
 
-                    trans.Rollback();
+                    conn.Rollback();
                 }
             }
             catch (Exception ex)
@@ -123,43 +123,43 @@ namespace TestOracle.Core
             }
         }
 
-        static IEnumerable<Employee> QueryOracle(DBConnectionWrapper conn, DBTransactionWrapper trans)
+        static IEnumerable<Employee> QueryOracle(DBConnectionWrapper conn)
         {
             //string sql = "select * from employees";
 
             Sql sql = new Sql("select * from employees where employee_id < :p_id").AddParamters(new { p_id = 110 });
-            var ret = conn.Query<Employee>(sql, trans);
+            var ret = conn.Query<Employee>(sql);
             Console.WriteLine(ret.Count() + " rows queried.");
-            ret = conn.Query<Employee>(sql, trans);
+            ret = conn.Query<Employee>(sql);
             Console.WriteLine(ret.Count() + " rows queried.");
             return ret;
         }
 
-        static int GetSingleValue(DBConnectionWrapper conn, DBTransactionWrapper trans)
+        static int GetSingleValue(DBConnectionWrapper conn)
         {
             string sql = "select count(*) from employees";
-            var ret = conn.GetSingleValue<int>(sql, trans);
+            var ret = conn.GetSingleValue<int>(sql);
             Console.WriteLine(ret + " rows in employees table.");
             return ret;
         }
 
 
-        static IEnumerable<string> GetFirstColumn(DBConnectionWrapper conn, DBTransactionWrapper trans)
+        static IEnumerable<string> GetFirstColumn(DBConnectionWrapper conn)
         {
             string sql = "SELECT first_name FROM employees";
-            var ret = conn.GetFirstColumn<string>(sql, trans);
+            var ret = conn.GetFirstColumn<string>(sql);
             Console.WriteLine("Queried " + ret.Count() + " lines of first column.");
             return ret;
         }
 
-        static Employee Load(DBConnectionWrapper conn, DBTransactionWrapper trans = null)
+        static Employee Load(DBConnectionWrapper conn)
         {
-            var ret = conn.Load(new Employee { EMPLOYEE_ID = 102 }, trans);
+            var ret = conn.Load(new Employee { EMPLOYEE_ID = 102 });
             Console.WriteLine("First name of loaded employee is " + ret.FIRST_NAME);
             return ret;
         }
 
-        static Employee Insert(DBConnectionWrapper conn, DBTransactionWrapper trans = null)
+        static Employee Insert(DBConnectionWrapper conn)
         {
             Employee obj = new Employee
             {
@@ -175,20 +175,20 @@ namespace TestOracle.Core
                 MANAGER_ID = 205,
                 DEPARTMENT_ID = 110
             };
-            var ret = conn.Insert(obj, trans: trans);
+            var ret = conn.Insert(obj);
             Console.WriteLine(ret + " rows inserted");
             return obj;
         }
 
-        static Employee Update0(Employee obj, DBConnectionWrapper conn, DBTransactionWrapper trans = null)
+        static Employee Update0(Employee obj, DBConnectionWrapper conn)
         {
             obj.DEPARTMENT_ID = 60;
             obj.HIRE_DATE = DateTime.Now.AddDays(-2);
-            conn.Update(obj, trans: trans);
+            conn.Update(obj);
             return obj;
         }
 
-        static Employee Update(DBConnectionWrapper conn, DBTransactionWrapper trans = null)
+        static Employee Update(DBConnectionWrapper conn)
         {
             Employee obj = new Employee
             {
@@ -196,7 +196,7 @@ namespace TestOracle.Core
                 DEPARTMENT_ID = 50,
                 HIRE_DATE = DateTime.Now.AddDays(-1)
             };
-            int ret = trans.Update(obj, new { obj.HIRE_DATE }, out var res);
+            int ret = conn.Update(obj, new { obj.HIRE_DATE }, out var res);
             //int ret = conn.Update(obj, new { obj.HIRE_DATE }, out var res, trans);
             Console.WriteLine(ret + " rows updated");
             if (ret > 0)
@@ -206,9 +206,9 @@ namespace TestOracle.Core
             return obj;
         }
 
-        static int Delete(DBConnectionWrapper conn, DBTransactionWrapper trans = null)
+        static int Delete(DBConnectionWrapper conn)
         {
-            int ret = conn.Delete(new Employee { EMPLOYEE_ID = 207 }, trans);
+            int ret = conn.Delete(new Employee { EMPLOYEE_ID = 207 });
             Console.WriteLine(ret + " rows deleted");
             return ret;
         }

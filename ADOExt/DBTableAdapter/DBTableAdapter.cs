@@ -50,10 +50,10 @@ namespace MagicEastern.ADOExt
             return sql;
         }
 
-        public virtual int Delete(T obj, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        public virtual int Delete(T obj, DBConnectionWrapper conn)
         {
             var sql = GetDeleteSql(obj);
-            return conn.Execute(sql, false, trans);
+            return conn.Execute(sql, false);
         }
 
         private Sql GetLoadSql(T obj)
@@ -66,10 +66,10 @@ namespace MagicEastern.ADOExt
             return sql;
         }
 
-        public virtual T Load(T obj, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        public virtual T Load(T obj, DBConnectionWrapper conn)
         {
             var sql = GetLoadSql(obj);
-            return conn.Query<T>(sql, trans).FirstOrDefault();
+            return conn.Query<T>(sql).FirstOrDefault();
         }
 
         private IEnumerable<IDBTableColumnMapping<T>> GetSetColumns(IEnumerable<IDBTableColumnMapping<T>> all, object properties, string operation)
@@ -93,9 +93,9 @@ namespace MagicEastern.ADOExt
             return InsertCommand.Generate(obj, GetSetColumns(InsertColumnsInfo, properties, "Insert()"), parameterSuffix);
         }
 
-        public virtual int Insert(T obj, object properties, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        public virtual int Insert(T obj, object properties, out T result, DBConnectionWrapper conn)
         {
-            return InsertCommand.Execute(obj, GetSetColumns(InsertColumnsInfo, properties, "Insert()"), out result, conn, trans);
+            return InsertCommand.Execute(obj, GetSetColumns(InsertColumnsInfo, properties, "Insert()"), out result, conn);
         }
 
         public virtual Sql GetUpdateSql(T obj, object properties, string parameterSuffix = null)
@@ -107,13 +107,13 @@ namespace MagicEastern.ADOExt
             return UpdateCommand.Generate(obj, GetSetColumns(SetColumnsInfo, properties, "Update()"), parameterSuffix);
         }
 
-        public virtual int Update(T obj, object properties, out T result, DBConnectionWrapper conn, DBTransactionWrapper trans)
+        public virtual int Update(T obj, object properties, out T result, DBConnectionWrapper conn)
         {
             if (UpdateCommand == null)
             {
                 throw new NotSupportedException("Update is not support for this [" + typeof(T).FullName + "], make sure you have primary key defined in Entity Metadata for this type.");
             }
-            return UpdateCommand.Execute(obj, GetSetColumns(SetColumnsInfo, properties, "Update()"), out result, conn, trans);
+            return UpdateCommand.Execute(obj, GetSetColumns(SetColumnsInfo, properties, "Update()"), out result, conn);
         }
     }
 }

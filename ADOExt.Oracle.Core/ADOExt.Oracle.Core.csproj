@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
     <Description>A simple object mapping library. A simple extenstion for IDbConnection and IDbTransaction.</Description>
-    <Version>3.21</Version>
+    <Version>4.0.0</Version>
     <PackageTags>ORM Database ADO.NET Extension</PackageTags>
     <AssemblyName>MagicEastern.ADOExt.Oracle.Core</AssemblyName>
     <RootNamespace>MagicEastern.ADOExt.Oracle.Core</RootNamespace>

@@ -5,16 +5,18 @@ namespace MagicEastern.ADOExt
 {
     public static class IDBServiceExt
     {
-        public static DBTransactionWrapper BeginTransaction(this IDBService dbService)
+        public static DBConnectionWrapper BeginTransaction(this IDBService dbService)
         {
             var conn = dbService.OpenConnection();
-            return conn.BeginTransaction();
+            conn.BeginTransaction();
+            return conn;
         }
 
-        public static DBTransactionWrapper BeginTransaction(this IDBService dbService, IsolationLevel il)
+        public static DBConnectionWrapper BeginTransaction(this IDBService dbService, IsolationLevel il)
         {
             var conn = dbService.OpenConnection();
-            return conn.BeginTransaction(il);
+            conn.BeginTransaction(il);
+            return conn;
         }
 
         public static Sql GetDeleteSql<T>(this IDBService dbService, T obj, string parameterSuffix = null) where T: new() { 

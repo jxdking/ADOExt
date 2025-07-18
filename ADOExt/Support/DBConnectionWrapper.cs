@@ -6,28 +6,45 @@ namespace MagicEastern.ADOExt
     public class DBConnectionWrapper : IDisposable
     {
         public IDbConnection Connection { get; private set; }
+        public IDbTransaction Transaction { get; private set; }
         public IDBService DBService { get; }
         private readonly Func<IDbCommand> commandFactory;
 
-        public DBConnectionWrapper(IDbConnection connection, IDBService dbService, Func<IDbCommand> commandFactory)
+        public void Commit() {
+            if (Transaction == null)
+            {
+                throw new InvalidOperationException("The transaction has not started yet or it has completed already.");
+            }
+            Transaction.Commit();
+            Dispose(true);
+        }
+        public void Rollback() {
+            if (Transaction == null)
+            {
+                throw new InvalidOperationException("The transaction has not started yet or it has completed already.");
+            }
+            Transaction.Rollback();
+            Dispose(true);
+        }
+
+        public DBConnectionWrapper(IDbConnection connection, IDBService dbService, Func<IDbCommand> commandFactory, IDbTransaction transaction = null)
         {
             Connection = connection;
             DBService = dbService;
             this.commandFactory = commandFactory;
+            Transaction = transaction;
         }
 
         public IDbCommand CreateCommand() => commandFactory();
         
-        public DBTransactionWrapper BeginTransaction()
+        public void BeginTransaction()
         {
-            var trans = Connection.BeginTransaction();
-            return new DBTransactionWrapper(trans, this);
+            Transaction = Connection.BeginTransaction();
         }
 
-        public DBTransactionWrapper BeginTransaction(IsolationLevel il)
+        public void BeginTransaction(IsolationLevel il)
         {
-            var trans = Connection.BeginTransaction(il);
-            return new DBTransactionWrapper(trans, this);
+            Transaction = Connection.BeginTransaction(il);
         }
 
         public void Close()
@@ -46,7 +63,9 @@ namespace MagicEastern.ADOExt
                 if (disposing)
                 {
                     // TODO: dispose managed state (managed objects).
-                    Connection.Dispose();
+                    Transaction?.Dispose();
+                    Transaction = null;
+                    Connection?.Dispose();
                     Connection = null;
                 }
                 disposedValue = true;
@@ -56,9 +75,12 @@ namespace MagicEastern.ADOExt
         // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(true);
+            if (Transaction != null)
+            {
+                Transaction.Rollback();
+            }
 
+            Dispose(true);
         }
         #endregion
     }
