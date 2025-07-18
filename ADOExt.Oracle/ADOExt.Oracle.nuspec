@@ -15,7 +15,7 @@
     <copyright>Copyright 2022</copyright>
     <tags>ORM ADO.NET Mapping Database</tags>
 	<dependencies>
-		<dependency id="MagicEastern.ADOExt" version="3.21.0" />
+		<dependency id="MagicEastern.ADOExt" version="4.0.0" />
 	</dependencies>
   </metadata>
 </package>
