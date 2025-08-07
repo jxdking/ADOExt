@@ -45,21 +45,7 @@ Use the database.
 ```c#
 using (var conn = dbManager.OpenConnection())
 {
-	_ = conn.Query<DeptInfo>("select * from Department");
-
-	using (var trans = conn.BeginTransaction())
-	{
-	    trans.Insert(new DeptInfo
-	    {
-		DEPT_ID = "IT",
-		IODescriptionAttribute = "IT"
-	    });
-	    /*
-	     * If missing this line below, the transaction will be 
-	     * rolled back by default.
-	     */
-	    trans.Commit();
-	}
+    var records = conn.Query<DeptInfo>("select * from Department");
 }
 
 /*
@@ -71,9 +57,16 @@ using (var conn = dbManager.OpenConnection())
  */
 using (var trans = dbManager["mydb"].BeginTransaction())
 {
-	// do your stuff...
-
-	trans.Commit();
+    trans.Insert(new DeptInfo
+    {
+	DEPT_ID = "IT",
+	IODescriptionAttribute = "IT"
+    });
+    /*
+     * If missing this line below, the transaction will be 
+     * rolled back by default.
+     */
+    trans.Commit();
 }
 ```
 
