@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADOExt.Oracle.Core", "ADOEx
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestOracle.Core", "TestOracle.Core\TestOracle.Core.csproj", "{6EBAA0A6-5A1F-464D-9809-6247A7A547C4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADOExt.Paging", "ADOExt.Paging\ADOExt.Paging.csproj", "{F69AE96F-4745-4393-9A4A-B12F4DF5B6A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{6EBAA0A6-5A1F-464D-9809-6247A7A547C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EBAA0A6-5A1F-464D-9809-6247A7A547C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EBAA0A6-5A1F-464D-9809-6247A7A547C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F69AE96F-4745-4393-9A4A-B12F4DF5B6A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F69AE96F-4745-4393-9A4A-B12F4DF5B6A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F69AE96F-4745-4393-9A4A-B12F4DF5B6A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F69AE96F-4745-4393-9A4A-B12F4DF5B6A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

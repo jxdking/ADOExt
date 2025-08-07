@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>MagicEastern.ADOExt.Paging</AssemblyName>
+    <RootNamespace>MagicEastern.ADOExt.Paging</RootNamespace>
+    <Version>4.0.0</Version>
+    <Authors>Kevin Jin</Authors>
+    <Description>Provide some basic utilities for SQL pagination.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ADOExt\ADOExt.csproj" />
+  </ItemGroup>
+
+</Project>

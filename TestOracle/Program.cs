@@ -6,6 +6,7 @@
 
 using MagicEastern.ADOExt;
 using MagicEastern.ADOExt.Oracle.Lite;
+using MagicEastern.ADOExt.Paging;
 using Microsoft.Extensions.DependencyInjection;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -41,6 +42,7 @@ namespace TestOracle
 
             var rp = db;
             //Insert2(connStr);
+            var isOracle = db.IsOracle();
             using (var conn = rp.OpenConnection())
             {
                 conn.BeginTransaction();
