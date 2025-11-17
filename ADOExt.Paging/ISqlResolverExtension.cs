@@ -8,7 +8,9 @@ namespace MagicEastern.ADOExt.Paging
     {
         public static bool IsOracle(this IDBService db)
         {
-            return db.SqlResolver.GetType().FullName == "MagicEastern.ADOExt.Oracle.SqlResolver";
+            string typename = db.SqlResolver.GetType().FullName;
+            return typename == "MagicEastern.ADOExt.Oracle.SqlResolver"
+                || typename == "MagicEastern.ADOExt.Oracle.Core.SqlResolver";
         }
 
         public static bool IsSqlServer(this IDBService db)
