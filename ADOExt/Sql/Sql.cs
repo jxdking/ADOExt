@@ -64,7 +64,7 @@ namespace MagicEastern.ADOExt
                     continue;
                 }
 
-                // p should be a native type, such as SqlParamter, or OracleParameter.
+                // p should be a native type, such as SqlParameter, or OracleParameter.
                 Scrub(p);
                 command.Parameters.Add(p);
             }

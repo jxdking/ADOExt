@@ -23,12 +23,12 @@ namespace MagicEastern.ADOExt
             dic[para.ParameterName] = para;
         }
 
-        public static Sql AddParamter(this Sql sql, IDbDataParameter para) {
+        public static Sql AddParameter(this Sql sql, IDbDataParameter para) {
             sql.Parameters[para.ParameterName] = para;
             return sql;
         }
 
-        public static Sql AddParamters(this Sql sql, object parameters) {
+        public static Sql AddParameters(this Sql sql, object parameters) {
             foreach (var p in parameters.GetType().GetProperties()) {
                 sql.Parameters[p.Name] = new Parameter(p.Name, p.GetValue(parameters));
             }
