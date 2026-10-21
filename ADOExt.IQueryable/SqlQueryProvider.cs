@@ -48,10 +48,7 @@ namespace MagicEastern.ADOExt.IQueryable
             Console.WriteLine($"[LINQ] Executing: {expression}");
 
             // Rewrite the expression to use our inner source
-            var rewriter = new SourceRewriter(_source);
-            var rewritten = rewriter.Visit(expression);
-
-            return _source.Provider.Execute<TResult>(rewritten);
+            return _source.Provider.Execute<TResult>(expression);
         }
 
 
