@@ -23,6 +23,7 @@ namespace TestQueryable
 
         public static void TestMethod1()
         {
+            string honda = "Honda";
             List<Car> list = [
                 new Car{ BRAND = "Honda", MODEL = "Civic" },
                 new Car{ BRAND = "Toyota", MODEL = "Corolla" }

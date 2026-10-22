@@ -16,6 +16,10 @@ namespace MagicEastern.ADOExt.IQueryable
     /// </summary>
     public class SqlExpressionVisitor : ExpressionVisitor
     {
+        private static int SqlExpressionSeq = 0;
+        public List<Parameter> Parameters = new List<Parameter>();
+
+
         private const string TableName = "sometable";
 
         private static readonly Dictionary<ExpressionType, string> BinaryOperators =
@@ -75,6 +79,7 @@ namespace MagicEastern.ADOExt.IQueryable
                    .Append(string.Join(", ", _orderGroups.SelectMany(g => g)));
             }
 
+            SqlExpressionSeq++;
             return sql.ToString();
         }
 
@@ -93,7 +98,6 @@ namespace MagicEastern.ADOExt.IQueryable
             }
 
             if (_sb != null
-                && node.NodeType != ExpressionType.Constant
                 && !DependsOnParameter(node))
             {
                 _sb.Append(FormatLiteral(Evaluate(node)));
