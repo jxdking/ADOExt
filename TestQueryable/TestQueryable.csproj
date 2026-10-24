@@ -10,10 +10,12 @@
 
   <ItemGroup>
     <PackageReference Include="MSTest" Version="4.0.2" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ADOExt.IQueryable\ADOExt.IQueryable.csproj" />
+    <ProjectReference Include="..\ADOExt.SqlServer\ADOExt.SqlServer.csproj" />
     <ProjectReference Include="..\ADOExt\ADOExt.csproj" />
   </ItemGroup>
 
