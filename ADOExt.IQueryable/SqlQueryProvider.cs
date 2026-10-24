@@ -48,15 +48,20 @@ namespace MagicEastern.ADOExt.IQueryable
             return conn.Query<T>(sql).ToList();
         }
 
+        public Sql ToSql(Expression expression) {
+            var visitor = new SqlExpressionVisitor();
+            var ret = visitor.GetSqlQuery(expression, _sql, _getColumnNameFunc, _paraSymbol);
+            return ret;
+        }
+
+
         public object Execute(Expression expression)
         {
             var elementType = expression.Type.GetSequenceElementType();
             var mi = typeof(SqlQueryProvider).GetMethod(nameof(QueryAsList), BindingFlags.Static | BindingFlags.NonPublic);
             var generic = mi.MakeGenericMethod(elementType);
 
-            var visitor = new SqlExpressionVisitor();
-            var finalSql = visitor.GetSqlQuery(expression, _sql, _getColumnNameFunc, _paraSymbol);
-
+            var finalSql = ToSql(expression);
             var ret = generic.Invoke(null, new object[] { finalSql, _conn });
             return ret;
         }

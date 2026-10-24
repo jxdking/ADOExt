@@ -39,8 +39,9 @@ namespace TestQueryable
             using (var conn = DBManager.OpenConnection()) {
                 var ret = querysql.AsQueryable<SalesOrderHeader>(conn)
                     .Where(i => search.Contains(i.SalesOrderNumber))
-                    .OrderByDescending(i => i.SalesOrderNumber)
-                    .ToList();
+                    .OrderByDescending(i => i.SalesOrderNumber);
+
+                var sql = (ret.Provider as SqlQueryProvider).ToSql(ret.Expression);
                 Console.WriteLine("done");
             }
 
