@@ -22,7 +22,7 @@ namespace TestQueryable
         static void Main(string[] args)
         {
             var sc = new ServiceCollection();
-            sc.AddDBServiceManger().AddDatabase("mydb", () => new System.Data.SqlClient.SqlConnection(SqlConnString));
+            sc.AddDBServiceManager().AddDatabase("mydb", () => new System.Data.SqlClient.SqlConnection(SqlConnString));
             var sp = sc.BuildServiceProvider();
             DBManager = sp.GetService<DBServiceManager>();
             TestMethod1();

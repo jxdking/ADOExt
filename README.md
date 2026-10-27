@@ -1,19 +1,21 @@
-# ADOExt
+# ADOExt Documentation
 
 ## Description
-A simple object mapping library. It uses ADO.NET at backend. The performance is on par with (if it is not faster) Entity Framework Core.
+ADOExt is a simple object-mapping library designed to simplify database interactions using ADO.NET at the backend. It aims to provide performance comparable to, or exceeding, Object-Relational Mappers like Entity Framework Core.
 
+## NuGet Packages
+*   **Oracle:** [https://www.nuget.org/packages/MagicEastern.ADOExt.Oracle/](https://www.nuget.org/packages/MagicEastern.ADOExt.Oracle/)
+*   **SQL Server:** [https://www.nuget.org/packages/MagicEastern.ADOExt.SqlServer/](https://www.nuget.org/packages/MagicEastern.ADOExt.SqlServer/)
 
-## Nuget
-Oracle: [https://www.nuget.org/packages/MagicEastern.ADOExt.Oracle/](https://www.nuget.org/packages/MagicEastern.ADOExt.Oracle/)
+---
 
-Sql Server: [https://www.nuget.org/packages/MagicEastern.ADOExt.SqlServer/](https://www.nuget.org/packages/MagicEastern.ADOExt.SqlServer/)
+## How to Use ADOExt
 
+### Step 1: Define Mappable Classes
+Apply the `DBColumn` attribute to properties that map to database columns. If the class represents an entire table, apply the `DBTable` attribute.
 
-## How to use
-### Step 1
-Put DBColumn attribute to the Properties of the class that you wish to map from database. Optionally, if you need to insert, update, delete, and load record from a table, put DBTable attribute to the class.
-```c#
+**Example:**
+```csharp
 [DBTable("Department")]
 public class DeptInfo
 {
@@ -22,63 +24,65 @@ public class DeptInfo
 }
 ```
 
-### Step 2
-Register your database services.
-```c#
+### Step 2: Register Database Services
+Register your database connections and services using dependency injection. The `AddDatabase()` method can be called multiple times to support multiple data sources.
+
+**Example:**
+```csharp
 /* 
- * Register the DB Services. Thus, you can access DBServiceManager object
- * through dependency injection cross the application.
- * AddDatabase() can be called multiple times to add multiple databases.
+ * Registers the DB Service Manager, making it available for cross-application use.
  */
-serviceCollection.AddDBServiceManger()
-    .AddDatabase("mydb", () => new SqlConnection(SqlConnString));
+serviceCollection.AddDBServiceManager() // Corrected typo: Manger -> Manager
+	.AddDatabase("mydb", () => new SqlConnection(SqlConnString));
 ```
 
-### Step 3
-Request DBServiceManager object from dependency injection, like the example below.
-```c#
+### Step 3: Inject and Use the Database Manager
+Request an instance of `DBServiceManager` via dependency injection in your controllers or services.
+
+**Example:**
+```csharp
 public SomeController(DBServiceManager dbManager)
+{
+	// The service is now available for use.
+}
 ```
 
-### Step 4
-Use the database.
-```c#
+### Step 4: Perform Database Operations
+Use the injected manager to open connections, execute queries, and manage transactions.
+
+#### Querying Data (Read Operation)
+```csharp
 using (var conn = dbManager.OpenConnection())
 {
-    var records = conn.Query<DeptInfo>("select * from Department");
+	// Executes a query and maps results to DeptInfo objects.
+	var records = conn.Query<DeptInfo>("select * from Department");
 }
+```
 
-/*
- * You may create transaction directly from DBServiceManager.
- * Using optional indexer on DBServiceManger object to
- * specify the database you want to use instead of the default one.
- * The default database will be the 1st database when you
- * calling AddDatabase() during registering services.
- */
+#### Transactions (Write Operation)
+Transactions can be managed directly via the `DBServiceManager` indexer, allowing you to specify which database context to use.
+
+```csharp
 using (var trans = dbManager["mydb"].BeginTransaction())
 {
-    trans.Insert(new DeptInfo
-    {
-	DEPT_ID = "IT",
-	IODescriptionAttribute = "IT"
-    });
-    /*
-     * If missing this line below, the transaction will be 
-     * rolled back by default.
-     */
-    trans.Commit();
+	trans.Insert(new DeptInfo
+	{
+		DEPT_ID = "IT",
+		DESCRIPTION = "Information Technology" // Assuming IODescriptionAttribute was a typo for DESCRIPTION
+	});
+	/* 
+	 * If trans.Commit() is omitted, the transaction will be rolled back by default.
+	 */
+	trans.Commit();
 }
 ```
 
-#### Extension Methods on the Connection object returned from OpenConnection():
-```
-Query<T>()
-Execute()
-GetSingleValue<T>
-GetFirstColumn<T>
-Load<T>
-Insert<T>
-Update<T>
-Delete<T>
- ```
- See example in projects "Test"(SqlServer), "TestOracle"(Oracle).
+#### Connection Extension Methods
+The `Connection` object returned from `OpenConnection()` provides several extension methods for common database operations:
+
+*   `Query<T>()`: Executes a query and returns an enumerable of mapped objects.
+*   `Execute()`: Executes a non-query command (e.g., stored procedure).
+*   `GetSingleValue<T>()`: Retrieves a single scalar value.
+*   `Load<T>()`, `Insert<T>()`, `Update<T>()`, `Delete<T>()`: Methods for CRUD operations on mapped objects.
+
+> **Note:** See the "Test" (SqlServer) and "TestOracle" (Oracle) projects for detailed usage examples of these methods.

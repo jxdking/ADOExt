@@ -30,7 +30,7 @@ namespace Test
         static void Main(string[] args)
         {
             var sc = new ServiceCollection();
-            sc.AddDBServiceManger().AddDatabase("mydb", () => new SqlConnection(SqlConnString));
+            sc.AddDBServiceManager().AddDatabase("mydb", () => new SqlConnection(SqlConnString));
             var sp = sc.BuildServiceProvider();
             DBManager = sp.GetService<DBServiceManager>();
             TestSqlServer();

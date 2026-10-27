@@ -4,7 +4,7 @@ namespace MagicEastern.ADOExt
 {
     public static class ServiceExt
     {
-        public static DBServiceManagerBuilder AddDBServiceManger(this IServiceCollection services)
+        public static DBServiceManagerBuilder AddDBServiceManager(this IServiceCollection services)
         {
             var builder = new DBServiceManagerBuilder();
             var manager = new DBServiceManager(builder);
