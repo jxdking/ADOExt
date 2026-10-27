@@ -36,5 +36,14 @@ namespace MagicEastern.ADOExt.IQueryable
             var ret = new SqlQueryable<T>(provider);
             return ret;
         }
+
+
+        public static Sql ToSql<T>(this IQueryable<T> query) {
+            if (!(query is SqlQueryable<T>)) {
+                throw new ArgumentException("[query] has to be SqlQueryable<T> type.");
+            }
+            return (query.Provider as SqlQueryProvider).ToSql(query.Expression);
+
+        } 
     }
 }

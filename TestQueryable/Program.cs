@@ -41,7 +41,7 @@ namespace TestQueryable
                     .Where(i => search.Contains(i.SalesOrderNumber))
                     .OrderByDescending(i => i.SalesOrderNumber);
 
-                var sql = (ret.Provider as SqlQueryProvider).ToSql(ret.Expression);
+                var sql = ret.ToSql();
                 Console.WriteLine("done");
             }
 
